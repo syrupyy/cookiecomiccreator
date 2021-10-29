@@ -1,0 +1,218 @@
+@font-face {
+    font-family: "CookieRun";
+    src: url("CookieRun-Bold.woff2") format("woff2"), url("CookieRun-Bold.woff") format("woff");
+    font-weight: bold;
+}
+body {
+    min-width: 338px;
+    background-color: #ffd71e;
+    color: #2e1200;
+    font-family: "CookieRun", -apple-system, sans-serif;
+    font-weight: bold;
+    text-align: center;
+}
+body.ja p, body.ja button, body.ja input, body.ja textarea {
+    font-family: "Noto Sans JP", "CookieRun", -apple-system, sans-serif;
+    font-weight: bold;
+}
+body.ja button {
+    color: #2e1200;
+    -webkit-text-stroke: 0;
+}
+body.ja button#flip {
+    width: 177px;
+}
+h1 {
+    margin: 0.5em 0;
+}
+button {
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    outline: none;
+    background-color: #ffdd39;
+    border: 2px solid #954e00;
+    border-radius: 10px;
+    color: #fff;
+    -webkit-text-stroke: 1px #995f12;
+}
+button:active {
+    background-color: #806f1d;
+    border: 2px solid #4b2700;
+    -webkit-text-stroke: 1px #4b2700;
+}
+button:disabled {
+    background-color: #b8b09c;
+    border: 2px solid #544e43;
+    -webkit-text-stroke: 1px #544e43;
+}
+canvas {
+    max-width: 100%;
+}
+textarea {
+    width: calc(100% - 84px);
+    height: 40px;
+    padding: 8px;
+    margin-right: 4px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    resize: none;
+}
+input[type="text"] {
+    width: 298px;
+    padding: 8px;
+    margin-bottom: 4px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    resize: none;
+}
+.creator {
+    max-width: 100vw;
+    text-align: left;
+    display: inline-block;
+    background-color: #f1eee5;
+    border: 2px solid #a2a2a2;
+    border-radius: 15px;
+    padding: 4px 8px;
+    user-select: none;
+    max-width: 1410px;
+}
+.center {
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+}
+.opened {
+    border: 2px solid #fff;
+}
+.right-buttons {
+    text-align: right;
+}
+.right-buttons button {
+    margin-left: 4px;
+}
+.column {
+    float: left;
+}
+.column button {
+    width: unset;
+    height: 28px;
+    display: block;
+    padding: 0 8px;
+    margin-bottom: 4px;
+}
+.column button.noblock {
+    display: inline;
+}
+.row {
+    display: inline-block;
+}
+.flex {
+    display: flex;
+    margin-top: 8px;
+    justify-content: space-between;
+}
+.creator-buttons {
+    flex-wrap: wrap;
+}
+.none, ::-webkit-scrollbar {
+    display: none;
+}
+#comic {
+    margin-top: 4px;
+    touch-action: none;
+}
+/* #cookies img, #pets img {
+    position: relative;
+    top: 1px;
+}
+#cookies, #pets {
+    position: relative;
+    bottom: 7.5px;
+}
+#props, #text {
+    position: relative;
+    bottom: 5.5px;
+}
+#props img {
+    position: relative;
+    top: 1px;
+    right: 1px;
+}
+#textboxes img {
+    position: relative;
+    top: 2px;
+}
+#backgrounds {
+    position: relative;
+    top: 1px;
+} */
+.creator button {
+    background-position: center;
+    background-repeat: no-repeat;
+}
+#cookies {
+    background-image: url("../img/heads/cookie0001_head.png");
+    background-size: cover;
+}
+#pets {
+    background-image: url("../img/pets/pet0001_shop.png");
+    background-size: 35px;
+}
+#props {
+    background-image: url("../img/props/jelly/jellybean_01.png");
+    background-size: 25px;
+}
+#textboxes {
+    background-image: url("../img/textbox.png");
+    background-size: 40px;
+}
+#backgrounds {
+    background-image: url("../img/backgrounds/bg_loading_fullMoon.png");
+    background-size: cover;
+}
+/* #backgrounds {
+    background-image: url("../img/backgrounds.png");
+    background-size: 45px;
+} */
+#text-buttons {
+    flex-shrink: 0;
+}
+#flip {
+    width: 67px;
+}
+#back {
+    width: 293px;
+    height: 36px;
+}
+#images {
+    text-align: center;
+}
+#images img {
+    margin: 8px;
+    vertical-align: bottom;
+    max-width: calc(100% - 16px);
+}
+#images img.head {
+    width: 52px;
+    height: 52px;
+    margin: 4px;
+}
+#next-page {
+    margin-left: 16px;
+}
+#next-page, #previous-page {
+    width: 148px;
+    height: 36px;
+}
+#next-page, #previous-page, #text {
+    margin-top: 8px;
+}
+@media screen and (max-width: 1280px) {
+    .cookie {
+        zoom: 0.5;
+    }
+    .background {
+        width: 300px;
+    }
+}

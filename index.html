@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Cookie Comic Creator</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="apple-mobile-web-app-title" content="Comic Creator">
+        <meta name="description" content="Create comics with the Cookie Run characters and send them to your friends!">
+        <meta property="og:title" content="Cookie Run Comic Creator">
+        <meta property="og:type" content="article">
+        <meta property="og:description" content="Create comics with Cookie Run characters and send them to your friends!">
+        <link rel="shortcut icon" type="image/png" href="assets/img/favicon.png">
+        <link rel="stylesheet" href="assets/css/normalize.css">
+        <link rel="stylesheet" href="assets/css/style.css">
+    </head>
+    <body>
+        <h1>Cookie Comic Creator</h1>
+        <p>Create comics with Cookie Run characters and send them to your friends!</p>
+        <noscript>JavaScript must be enabled to use this website.</noscript>
+        <div class="creator">
+            <span class="center">
+                <canvas id="comic" width="1410" height="384"></canvas>
+            </span>
+            <div class="creator-buttons flex">
+                <span>
+                    <button id="cookies" class="openable" title="Cookies"></button>
+                    <button id="pets" class="openable" title="Pets"></button>
+                    <button id="props" class="openable" title="Props"></button>
+                    <button id="textboxes" class="openable" title="Textboxes"></button>
+                    <button id="backgrounds" class="openable" title="Backgrounds"></button><br>
+                    <input id="title" type="text" placeholder="Name" maxlength="50">
+                </span>
+                <div class="right-buttons">
+                    <div id="controls" class="column">
+                        <button id="increase-size" class="noblock" disabled>+</button>
+                        <button id="decrease-size" class="noblock" disabled>-</button>
+                        <button id="flip" disabled>Flip</button>
+                    </div>
+                    <div class="column">
+                        <button id="add-row">+ Row</button>
+                        <button id="remove-row" disabled>- Row</button>
+                    </div>
+                    <div class="column thick">
+                        <button id="add-column" disabled>+ Column</button>
+                        <button id="remove-column">- Column</button>
+                    </div>
+                    <div class="row"><button id="copy-panel">Copy Panel</button><button id="save-image">Save Image</button></div><br>
+                    <button id="back" class="none">Back</button>
+                </div>
+            </div>
+            <div id="images"></div>
+            <canvas id="text" class="none" width="0" height="0"></canvas>
+        </div>
+        <script src="assets/index.js"></script>
+        <script src="assets/creator.js"></script>
+        <p>Share your creations on Twitter with <a href="https://twitter.com/hashtag/cookiecomiccreator">#cookiecomiccreator</a> or on Tumblr with <a href="https://www.tumblr.com/tagged/cookie%20comic%20creator">cookie comic creator</a>!</p>
+        <p>Cookie Comic Creator is a nonprofit fan project, and is not affiliated with Devsisters.<br><a href="https://game.devsisters.com/en/cookierun/">Please support the game by downloading it on the official website!</a></p>
+        <p>This site uses the CookieRun font by Devsisters. <a href="https://www.cookierunfont.com/static/download/License_ko_en.pdf" target="_blank">(license)</a></p>
+        <p>made by syrupyy &#129412; <a href="https://syrupyy.tumblr.com/">tumblr</a><br>if you have any suggestions/find a bug, message me or send an ask!</p>
+    </body>
+</html>
