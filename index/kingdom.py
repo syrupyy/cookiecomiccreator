@@ -65,7 +65,25 @@ for subdir, dirs, files in os.walk("."):
                 factor = 2
             else:
                 factor = 1.5
-            im = trim(im)
+            if subdir[2:] == "Adventurer Cookie":
+                if file == "embarrassed.png":
+                    im = im.crop((284, 45, 1012, 1083))
+                elif file == "happy.png":
+                    im = im.crop((310, 0, 1023, 1084))
+                elif file == "motivated.png":
+                    im = im.crop((158, 0, 986, 1082))
+                elif file == "relieved.png":
+                    im = im.crop((299, 18, 1015, 1077))
+                elif file == "sad.png":
+                    im = im.crop((311, 21, 1038, 1080))
+                elif file == "serious.png":
+                    im = im.crop((299, 8, 1015, 1077))
+                elif file == "stand.png":
+                    im = im.crop((66, 17, 260, 305))
+                else:
+                    im = trim(im)
+            else:
+                im = trim(im)
             cookie = subdir[2:].replace(" Cookie", "").replace(" ", "_").lower()
             if not os.path.exists("../img/cookies/kingdom/" + cookie):
                 os.makedirs("../img/cookies/kingdom/" + cookie)

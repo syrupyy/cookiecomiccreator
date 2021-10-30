@@ -67,7 +67,7 @@ function pagify(sprites, id, offset = 0) {
                         if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
                     }
                 } else {
-                    if(id === "cookys" || id === "pets") {
+                    if(id === "cookies" || id === "pets") {
                         if(id === "pets") {
                             var width = img.width * 0.5;
                             var height = img.height * 0.5;
