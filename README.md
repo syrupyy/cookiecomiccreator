@@ -10,8 +10,11 @@ This software isn't distributed with all the sprite files necessary to make comi
 6. Put the contents of index/ (ovenbreak.py, forbidden.txt, cutscenebgs.txt) in your download folder (the one with ccb/, image/ and etc).
 7. Run ovenbreak.py, usually by going into said download folder in the command line and running `python3 ovenbreak.py`
 8. Wait for it to make the files.
-9. Copy the img/ folder and index.js file into the assets folder of your instance.
-10. Done!
+9. Now we grab the Kingdom files. [Download the folder of cookies from the Kingdom fankit](https://www.dropbox.com/sh/pkmdawhvj08rmxf/AAAT2UqHoRw1gfw239xaLiz1a/03.%20Cookie?dl=0) and extract it to a subfolder in the same folder where you put ovenbreak.py, then [combine it with a collection of files missing from that download](https://cdn.discordapp.com/attachments/360967345503469569/903796894239707166/missing.zip) including heads and ancient cookies.
+10. Drag kingdom.py into your fankit subfolder and run it, the same way as above. `python3 kingdom.py`
+11. Copy the img/ folder, index.js file and index_kingdom.js file into the assets folder of your instance.
+12. Done!
 ## License
 The CookieRun Typeface is provided by Devsisters Corp. under their proprietary license, which can be found at CookieRun-Bold-License.pdf or [on their website here.](https://www.cookierunfont.com/static/download/License_ko_en.pdf) All other software in this repository is protected under the MIT license.
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

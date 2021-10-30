@@ -43,8 +43,9 @@ function pagify(sprites, id, offset = 0) {
     entries.forEach(function(sprite, i) {
         if(i < offset || i >= newOffset) return;
         var img = document.createElement("img");
-        if(typeof key !== "undefined") {
-            img.src = "assets/img/" + id + "/" + key + "/" + sprite[0];
+        if(sprites.length === 2) {
+            if(id === "cookies" && tab === "kingdom") img.src = "assets/img/cookies/kingdom/" + key + "/" + sprite[0];
+            else img.src = "assets/img/" + id + "/" + key + "/" + sprite[0];
             img.width = sprite[1].width;
             img.height = sprite[1].height;
         } else img.src = "assets/img/" + id + "/" + sprite;
@@ -66,7 +67,7 @@ function pagify(sprites, id, offset = 0) {
                         if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
                     }
                 } else {
-                    if(id === "cookies" || id === "pets") {
+                    if(id === "cookys" || id === "pets") {
                         if(id === "pets") {
                             var width = img.width * 0.5;
                             var height = img.height * 0.5;
@@ -285,6 +286,7 @@ if(window.innerWidth < 980) {
     document.getElementById("remove-row").disabled = false;
     document.getElementById("add-column").disabled = false;
 }
+var tab = "ovenbreak";
 var holding = false;
 var startX, startY;
 var tail = null;
@@ -296,16 +298,14 @@ render();
 
 // Handle clicks and taps
 canvas.onmousedown = function(event) {
-    if(event.type === "touchstart") {
-        var pageX = event.changedTouches[0].pageX;
-        var pageY = event.changedTouches[0].pageY;
-    } else {
-        var pageX = event.pageX;
-        var pageY = event.pageY;
-    }
     if(event.type === "touchstart" || event.button === 0) {
-        var x = (pageX - canvas.offsetLeft) * canvas.width / canvas.clientWidth;
-        var y = (pageY - canvas.offsetTop) * canvas.height / canvas.clientHeight;
+        if(event.type === "touchstart") {
+            var x = (event.changedTouches[0].pageX - canvas.offsetLeft) * canvas.width / canvas.clientWidth;
+            var y = (event.changedTouches[0].pageY - canvas.offsetTop) * canvas.height / canvas.clientHeight;
+        } else {
+            var x = (event.pageX - canvas.offsetLeft) * canvas.width / canvas.clientWidth;
+            var y = (event.pageY - canvas.offsetTop) * canvas.height / canvas.clientHeight;
+        }
         for(var i = comic.sprites.length - 1; i >= 0 && holding === false; i--) {
             var element = comic.sprites[i];
             if(x > element.x && x < element.x + element.width && y > element.y && y < element.y + element.height) {
@@ -376,20 +376,18 @@ canvas.addEventListener("touchstart", canvas.onmousedown, {passive: true});
 // Handle dragging
 document.onmousemove = document.ontouchmove = function(event) {
     if(holding === true) {
-        if(event.type === "touchmove") {
-            event.preventDefault();
-            var pageX = event.changedTouches[0].pageX;
-            var pageY = event.changedTouches[0].pageY;
-        } else {
-            var pageX = event.pageX;
-            var pageY = event.pageY;
-        }
         comic.sprites.forEach(function(element) {
             if(element.held === true) {
-                var canvasX = ((pageX - canvas.offsetLeft) * canvas.width / canvas.clientWidth);
+                if(event.type === "touchmove") {
+                    event.preventDefault();
+                    var canvasX = (event.changedTouches[0].pageX - canvas.offsetLeft) * canvas.width / canvas.clientWidth;
+                    var canvasY = (event.changedTouches[0].pageY - canvas.offsetTop) * canvas.height / canvas.clientHeight;
+                } else {
+                    var canvasX = (event.pageX - canvas.offsetLeft) * canvas.width / canvas.clientWidth;
+                    var canvasY = (event.pageY - canvas.offsetTop) * canvas.height / canvas.clientHeight;
+                }
                 element.x += canvasX - startX;
                 startX = canvasX;
-                var canvasY = ((pageY - canvas.offsetTop) * canvas.height / canvas.clientHeight);
                 element.y += canvasY - startY;
                 startY = canvasY;
             }
@@ -422,23 +420,31 @@ canvas.ontouchend = function(event) {
 // Handle tab clicks
 Array.prototype.forEach.call(document.getElementsByClassName("openable"), function(element) {
     if(element.id !== "textboxes") element.onclick = function() {
+        document.getElementById("tabs").className = "none";
         document.getElementById("back").className = "none";
         document.getElementById("images").className = "";
         textCanvas.className = "none";
         if(this.className === "openable") {
-            if(element.id === "cookies" || element.id === "props") {
+            if(element.id === "cookys" || element.id === "props") {
+                if(element.id === "cookys") document.getElementById("tabs").className = "";
                 document.getElementById("images").innerHTML = "";
-                var sprites = Object.entries(element.id === "cookies" ? index.cookies : index.props);
+                var sprites = Object.entries(element.id === "cookys" ? (tab === "kingdom" ? indexKingdom.cookies : index.cookies) : index.props);
                 sprites.forEach(function(sprite) {
                     var img = document.createElement("img");
                     var subentries = Object.entries(sprite[1]);
-                    if(element.id === "cookies") {
-                        img.src = "assets/img/heads/" + sprite[0] + "_head.png";
-                        img.className = "head";
+                    if(element.id === "cookys") {
+                        if(tab === "kingdom") {
+                            img.src = "assets/img/heads/kingdom/" + sprite[0] + ".png";
+                            img.className = "head-kingdom";
+                        } else {
+                            img.src = "assets/img/heads/" + sprite[0] + "_head.png";
+                            img.className = "head";
+                        }
                     } else img.src = "assets/img/props/" + sprite[0] + "/" + Object.entries(subentries[sprite[0] === "effect" ? 12 : 0])[0][1];
                     img.onclick = function() {
+                        document.getElementById("tabs").className = "none";
                         document.getElementById("back").className = element.id;
-                        pagify(sprite, element.id);
+                        pagify(sprite, element.id === "cookys" ? "cookies" : element.id);
                     }
                     document.getElementById("images").appendChild(img);
                 });
@@ -457,6 +463,7 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
 // Handle opening the text tab
 document.getElementById("textboxes").onclick = function() {
     if(this.className === "openable") {
+        document.getElementById("tabs").className = "none";
         document.getElementById("back").className = "none";
         document.getElementById("images").innerHTML = "";
         document.getElementById("images").className = "flex";
@@ -627,13 +634,25 @@ document.getElementById("save-image").onclick = function() {
     try {
         var link = document.createElement("a");
         link.href = canvas.toDataURL();
-        if(comic.columns > 1) render();
-        link.download = "comic.png";
+        if(comic.columns > 1 || comic.title === "") render();
+        var title = comic.title.replace(/[^a-z0-9]+/gi, "_");
+        if(title === "") link.download = "comic.png";
+        else link.download = title + ".png";
         link.click();
     } catch(err) {
         if(err.code === 18) alert("Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic.");
         else alert(err);
     }
+}
+
+// Handle game switch tabs
+document.getElementById("ovenbreak").onclick = document.getElementById("kingdom").onclick = function() {
+    if(tab === this.id) return;
+    document.getElementById(tab).className = "tab unopened";
+    tab = this.id;
+    this.className = "tab";
+    document.getElementById("cookys").className = "openable";
+    document.getElementById("cookys").click();
 }
 
 // Handle back button

@@ -2,7 +2,6 @@
 
 # Cookie Comic Creator image formatter for Cookie Run: OvenBreak, by syrupyy
 # To use this, put the script in the root folder of a CROB data download ((data/)data/com.devsisters.gb/files/download/ on an Android filesystem, usually merged with assets/release/ from a Google Play asset pack), then run it via the command line (python ovenbreak.py)
-from io import BytesIO
 from PIL import Image, ImageChops
 from shutil import copyfile
 from xml.etree import ElementTree
@@ -10,7 +9,6 @@ import json
 import os
 import PIL
 import re
-import requests
 import sys
 
 # Define tree to dictionary function
@@ -329,9 +327,8 @@ for i in sorted(index["cookies"].keys()):
                 continue
         sorted_cookies[i2] = cookies[i2]
     for i2 in sorted(cookies.keys()):
-        if i2 in sorted_cookies:
-            continue
-        sorted_cookies[i2] = cookies[i2]
+        if i2 not in sorted_cookies:
+            sorted_cookies[i2] = cookies[i2]
     sorted_index["cookies"][i] = sorted_cookies
 sorted_index["pets"] = sorted(index["pets"])
 sorted_index["props"] = dict()
@@ -339,5 +336,5 @@ for i in sorted(index["props"].keys()):
     sorted_index["props"][i] = index["props"][i]
 sorted_index["backgrounds"] = sorted(index["backgrounds"])
 with open("index.js", "w") as js:
-    js.write("// Index of all the files\nvar index = " + json.dumps(sorted_index, ensure_ascii=False) + ";")
+    js.write("// Index of all the Cookie Run: OvenBreak files\nvar index = " + json.dumps(sorted_index, ensure_ascii=False) + ";")
 print("Done!")
