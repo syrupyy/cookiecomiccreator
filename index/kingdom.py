@@ -59,7 +59,7 @@ for subdir, dirs, files in os.walk("."):
                 factor = 5.5
             elif path == "Sonic Cookie/default.png" or path == "Tails Cookie/default.png":
                 factor = 2.5
-            elif im.size[1] > 400:
+            elif im.size[1] > 400 or path == "NPCs/cakehound_default.png":
                 factor = 3
             elif path == "Hollyberry Cookie/stand.png":
                 factor = 2
@@ -102,6 +102,8 @@ print("Sorting...")
 sorted_index = dict()
 sorted_index["cookies"] = dict()
 for i in sorted(index["cookies"].keys()):
+    if i == "npcs":
+        continue
     cookies = index["cookies"][i]
     sorted_cookies = dict()
     if "stand.png" in cookies:
@@ -115,6 +117,7 @@ for i in sorted(index["cookies"].keys()):
         if i2 not in sorted_cookies:
             sorted_cookies[i2] = cookies[i2]
     sorted_index["cookies"][i] = sorted_cookies
+sorted_index["cookies"]["npcs"] = index["cookies"]["npcs"]
 with open("../index_kingdom.js", "w") as js:
     js.write("// Index of all the Cookie Run: Kingdom files\nvar indexKingdom = " + json.dumps(sorted_index, ensure_ascii=False) + ";")
 print("Done!")

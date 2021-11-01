@@ -98,6 +98,10 @@ forbidden = []
 if os.path.exists("forbidden.txt"):
     with open("forbidden.txt") as txt:
         forbidden = txt.read().split("\n")
+npcs = []
+if os.path.exists("npcs.txt"):
+    with open("npcs.txt") as txt:
+        npcs = txt.read().split("\n")
 cutscenebgs = []
 if os.path.exists("cutscenebgs.txt"):
     with open("cutscenebgs.txt") as txt:
@@ -124,10 +128,30 @@ for subdir, dirs, files in os.walk("ccb"):
                 index["backgrounds"].remove(file)
             continue
         path = os.path.join(subdir, file).replace("\\", "/")
-        if cutscene.match(path):
+        if path in npcs:
             im = Image.open(path)
             width = im.size[0]
-            # I don't know why but certain sprites don't like my automatic cropping function
+            if path == "ccb/cutscene6001/resources-phonehd/a_hermit_carb_embarrassed.png": # Random floating pixels
+                im = im.crop((142, 129, 359, 385))
+            else:
+                im = trim(im)
+            if not os.path.exists("img/cookies/npc"):
+                os.makedirs("img/cookies/npc")
+            im.save("img/cookies/npc/" + file)
+            if "npc" not in index["cookies"]:
+                index["cookies"]["npc"] = dict()
+            index["cookies"]["npc"][file] = dict()
+            if width > 700:
+                index["cookies"]["npc"][file]["width"] = im.size[0] / 4
+                index["cookies"]["npc"][file]["height"] = im.size[1] / 4
+            else:
+                index["cookies"]["npc"][file]["width"] = im.size[0] / 2
+                index["cookies"]["npc"][file]["height"] = im.size[1] / 2
+            print(file)
+        elif cutscene.match(path):
+            im = Image.open(path)
+            width = im.size[0]
+            # I don't know why but certain sprites don't like my automatic cropping function, it doesn't even appear to be random floating pixels since my image editing programs can do it just fine
             if path == "ccb/cutscene_land/resources-phonehd/cookie0026_embrassed.png":
                 im = im.crop((87, 14, 424, 393))
             if path == "ccb/cutscene_land/resources-phonehd/cookie0026_sorry.png":
@@ -285,7 +309,11 @@ for subdir, dirs, files in os.walk("ccb"):
                 if file not in index["backgrounds"]:
                     index["backgrounds"].append(file)
                 print(file)
-                
+
+# Not included in the game's files anymore for some reason
+index["cookies"]["npc"]["pumpkin.png"] = dict()
+index["cookies"]["npc"]["pumpkin.png"]["width"] = 201.75
+index["cookies"]["npc"]["pumpkin.png"]["height"] = 216.75
 
 # Unpack props
 if not os.path.exists("img/props/effect"):

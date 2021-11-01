@@ -89,6 +89,11 @@ function pagify(sprites, id, offset = 0) {
         }
         document.getElementById("images").appendChild(img);
     });
+    if(sprites.length === 2 && ["dark_cacao", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
+        var p = document.createElement("p");
+        p.innerHTML = '(Sprites provided by <a href="https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki">the Cookie Run: Kingdom Wiki</a>)';
+        document.getElementById("images").appendChild(p);
+    }
 }
 
 // (Re)render the canvas
@@ -635,7 +640,7 @@ document.getElementById("save-image").onclick = function() {
         var link = document.createElement("a");
         link.href = canvas.toDataURL();
         if(comic.columns > 1 || comic.title === "") render();
-        var title = comic.title.replace(/[^a-z0-9]+/gi, "_");
+        var title = comic.title.replace(/[^a-z0-9]+/gi, "_").toLowerCase();
         if(title === "") link.download = "comic.png";
         else link.download = title + ".png";
         link.click();
