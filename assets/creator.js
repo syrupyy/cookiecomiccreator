@@ -20,7 +20,7 @@ function pagify(sprites, id, offset = 0) {
         var key = sprites[0];
         var entries = Object.entries(sprites[1]);
     } else var entries = sprites;
-    document.getElementById("images").innerHTML = "";
+    images.innerHTML = "";
     if(offset !== 0 || entries.length > newOffset) {
         var previous = document.createElement("button");
         previous.innerText = "Previous Page";
@@ -29,7 +29,7 @@ function pagify(sprites, id, offset = 0) {
         else previous.onclick = function() {
             pagify(sprites, id, offset - (id === "backgrounds" ? 12 : 20));
         }
-        document.getElementById("images").appendChild(previous);
+        images.appendChild(previous);
         var next = document.createElement("button");
         next.innerText = "Next Page";
         next.id = "next-page";
@@ -37,8 +37,8 @@ function pagify(sprites, id, offset = 0) {
         else next.onclick = function() {
             pagify(sprites, id, newOffset);
         }
-        document.getElementById("images").appendChild(next);
-        document.getElementById("images").appendChild(document.createElement("br"));
+        images.appendChild(next);
+        images.appendChild(document.createElement("br"));
     }
     entries.forEach(function(sprite, i) {
         if(i < offset || i >= newOffset) return;
@@ -87,12 +87,25 @@ function pagify(sprites, id, offset = 0) {
                 render();
             }
         }
-        document.getElementById("images").appendChild(img);
+        images.appendChild(img);
     });
+    if(typeof next !== "undefined") {
+        images.appendChild(document.createElement("br"));
+        var previousClone = previous.cloneNode(true);
+        if(!previous.disabled) previousClone.onclick = function() {
+            pagify(sprites, id, offset - (id === "backgrounds" ? 12 : 20));
+        }
+        images.appendChild(previousClone);
+        var nextClone = next.cloneNode(true);
+        if(!next.disabled) nextClone.onclick = function() {
+            pagify(sprites, id, newOffset);
+        }
+        images.appendChild(nextClone);
+    }
     if(sprites.length === 2 && ["dark_cacao", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
         var p = document.createElement("p");
         p.innerHTML = '(Sprites provided by <a href="https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki">the Cookie Run: Kingdom Wiki</a>)';
-        document.getElementById("images").appendChild(p);
+        images.appendChild(p);
     }
 }
 
@@ -282,6 +295,7 @@ var canvas = document.getElementById("comic");
 var ctx = canvas.getContext("2d");
 var textCanvas = document.getElementById("text");
 var textCtx = textCanvas.getContext("2d");
+var images = document.getElementById("images");
 var comic = {"rows": 1, "columns": 3, "title": "", "selected": null, "backgrounds": [], "sprites": []};
 if(window.innerWidth < 980) {
     comic.rows = 2;
@@ -427,12 +441,12 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
     if(element.id !== "textboxes") element.onclick = function() {
         document.getElementById("tabs").className = "none";
         document.getElementById("back").className = "none";
-        document.getElementById("images").className = "";
+        images.className = "";
         textCanvas.className = "none";
         if(this.className === "openable") {
             if(element.id === "cookys" || element.id === "props") {
                 if(element.id === "cookys") document.getElementById("tabs").className = "";
-                document.getElementById("images").innerHTML = "";
+                images.innerHTML = "";
                 var sprites = Object.entries(element.id === "cookys" ? (tab === "kingdom" ? indexKingdom.cookies : index.cookies) : index.props);
                 sprites.forEach(function(sprite) {
                     var img = document.createElement("img");
@@ -451,7 +465,7 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                         document.getElementById("back").className = element.id;
                         pagify(sprite, element.id === "cookys" ? "cookies" : element.id);
                     }
-                    document.getElementById("images").appendChild(img);
+                    images.appendChild(img);
                 });
             } else pagify(element.id === "pets" ? index.pets : index.backgrounds, element.id);
             Array.prototype.forEach.call(document.getElementsByClassName("opened"), function(opened) {
@@ -459,7 +473,7 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
             });
             this.className = "openable opened";
         } else {
-            document.getElementById("images").innerHTML = "";
+            images.innerHTML = "";
             this.className = "openable";
         }
     }
@@ -470,8 +484,8 @@ document.getElementById("textboxes").onclick = function() {
     if(this.className === "openable") {
         document.getElementById("tabs").className = "none";
         document.getElementById("back").className = "none";
-        document.getElementById("images").innerHTML = "";
-        document.getElementById("images").className = "flex";
+        images.innerHTML = "";
+        images.className = "flex";
         tail = null;
         textCanvas.className = "";
         textCanvas.width = 0;
@@ -486,12 +500,12 @@ document.getElementById("textboxes").onclick = function() {
                 if(textboxRenderCount === localTextboxRenderCount) drawTextbox();
             }, 10);
         };
-        document.getElementById("images").appendChild(text);
+        images.appendChild(text);
         var button = document.createElement("button");
         button.innerText = "Create";
         button.id = "create";
         button.disabled = true;
-        document.getElementById("images").appendChild(button);
+        images.appendChild(button);
         button.outerHTML = '<div id="text-buttons" class="right-buttons">' + button.outerHTML + '<div id="tails" class="column"><button id="top-left" class="tail noblock">&#8598;</button><button id="top-middle" class="tail noblock">&#8593;</button><button id="top-right" class="tail noblock">&#8599;</button><br><button id="bottom-left" class="tail noblock">&#8601;</button><button id="bottom-middle" class="tail noblock">&#8595;</button><button id="bottom-right" class="tail noblock">&#8600;</button></div></div>';
         document.getElementById("create").onclick = function() {
             this.disabled = true;
@@ -527,8 +541,8 @@ document.getElementById("textboxes").onclick = function() {
         });
         this.className = "openable opened";
     } else {
-        document.getElementById("images").innerHTML = "";
-        document.getElementById("images").className = "";
+        images.innerHTML = "";
+        images.className = "";
         textCanvas.className = "none";
         this.className = "openable";
     }
