@@ -310,10 +310,18 @@ for subdir, dirs, files in os.walk("ccb"):
                     index["backgrounds"].append(file)
                 print(file)
 
-# Not included in the game's files anymore for some reason
-index["cookies"]["npc"]["pumpkin.png"] = dict()
-index["cookies"]["npc"]["pumpkin.png"]["width"] = 201.75
-index["cookies"]["npc"]["pumpkin.png"]["height"] = 216.75
+# Add OvenBreak Infinity sprites and other sprites not in the files
+if os.path.exists("extra.json"):
+    with open("extra.json") as extrajson:
+        data = extrajson.read()
+        extra = json.loads(data)
+        for i in extra.keys():
+            if i not in index["cookies"]:
+                index["cookies"][i] = dict()
+            for i2 in extra[i].keys():
+                index["cookies"][i][i2] = dict()
+                index["cookies"][i][i2]["width"] = extra[i][i2]["width"]
+                index["cookies"][i][i2]["height"] = extra[i][i2]["height"]
 
 # Unpack props
 if not os.path.exists("img/props/effect"):

@@ -17,6 +17,12 @@ ccb/cutscene9011/resources-phonehd/artichoke_cookie_smile.png
 ccb/cutscene9011/resources-phonehd/artichoke_cookie_standard.png
 ccb/cutscene9012/resources-phonehd/pinata_cookie_smile.png
 ccb/cutscene9012/resources-phonehd/pinata_cookie_standard.png
+ccb/cutscene9013/resources-phonehd/pandafirst_despair.png
+ccb/cutscene9013/resources-phonehd/pandafirst_standard.png
+ccb/cutscene9013/resources-phonehd/pandasecond_despair.png
+ccb/cutscene9013/resources-phonehd/pandasecond_standard.png
+ccb/cutscene9013/resources-phonehd/pandathird_despair.png
+ccb/cutscene9013/resources-phonehd/pandathird_standard.png
 ccb/cutscene9020/resources-phonehd/cakepops_all.png
 ccb/cutscene9020/resources-phonehd/cakepops_member1.png
 ccb/cutscene9020/resources-phonehd/cakepops_member1_smile.png
@@ -32,6 +38,8 @@ ccb/cutscene9024/resources-phonehd/chococup_smile.png
 ccb/cutscene9024/resources-phonehd/chococup_standard.png
 ccb/cutscene9024/resources-phonehd/chococup_surprise.png
 ccb/cutscene9025/resources-phonehd/bacon_standard.png
+ccb/cutscene9025/resources-phonehd/startrainee_all_embarrasse.png
+ccb/cutscene9025/resources-phonehd/startrainee_all_standard.png
 ccb/cutscene9025/resources-phonehd/startrainee_embarrassed.png
 ccb/cutscene9025/resources-phonehd/startrainee_standard.png
 ccb/cutscene9028/resources-phonehd/emmental_cry.png
@@ -41,3 +49,5 @@ ccb/cutscene9030/resources-phonehd/reporter_cookie_standard.png
 ccb/cutscene300105/resources-phonehd/gnome_embarrassed.png
 ccb/cutscene300105/resources-phonehd/gnome_melt.png
 ccb/cutscene300105/resources-phonehd/gnome_standard.png
+ccb/tutorialCharacter/resources-phonehd/img_tutorial_championsNpc_normal.png
+ccb/tutorialCharacter/resources-phonehd/img_tutorial_championsNpc_smile.png

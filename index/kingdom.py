@@ -53,10 +53,13 @@ for subdir, dirs, files in os.walk("."):
             print(path)
         else:
             im = Image.open(path)
+            # I wish Python added switch statements sooner
             if im.size[1] > 1300:
                 factor = 6.5
             elif im.size[1] > 1000:
                 factor = 5.5
+            elif path == "NPCs/cakehound_crowned.png":
+                factor = 4
             elif path == "Sonic Cookie/default.png" or path == "Tails Cookie/default.png":
                 factor = 2.5
             elif im.size[1] > 400 or path == "NPCs/cakehound_default.png":

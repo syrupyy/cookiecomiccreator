@@ -33,6 +33,7 @@ cookie0003z02_duelWin.png
 cookie0003z02_shop_exhausted.png
 cookie0003z02_stand.png
 cookie0003z02_state.png
+cookie0011_-exhausted.png
 cookie0017_head.png
 cookie0038z01_stand.png
 cookie0041_shop_exhausted.png

@@ -10,7 +10,7 @@ This software isn't distributed with all the sprite files necessary to make comi
 6. Put the contents of index/ (ovenbreak.py, forbidden.txt, cutscenebgs.txt) in your download folder (the one with ccb/, image/ and etc).
 7. Run ovenbreak.py, usually by going into said download folder in the command line and running `python3 ovenbreak.py`
 8. Wait for it to make the files.
-9. Now we grab the Kingdom files. [Download the folder of cookies from the Kingdom fankit](https://www.dropbox.com/sh/pkmdawhvj08rmxf/AAAT2UqHoRw1gfw239xaLiz1a/03.%20Cookie?dl=0) and extract it to a subfolder in the same folder where you put ovenbreak.py, then [combine it with these extra files from the Cookie Run: Kingdom Wiki](https://cdn.discordapp.com/attachments/577976955199029258/905196922078388334/wikifankit.zip) such as NPCs and ancient cookies. (Head sprites were ripped by me)
+9. Now we grab the Kingdom files. [Download the folder of cookies from the Kingdom fankit](https://www.dropbox.com/sh/pkmdawhvj08rmxf/AAAT2UqHoRw1gfw239xaLiz1a/03.%20Cookie?dl=0) and extract it to a subfolder in the same folder where you put ovenbreak.py, then combine it with the files in the wikifankit/ folder, which contains extra sprites such as NPCs and ancient cookies, provided by the Cookie Run: Kingdom Wiki. (Head sprites were ripped by me)
 10. Drag kingdom.py into your fankit subfolder and run it, the same way as above. `python3 kingdom.py`
 11. Copy the img/ folder, index.js file and index_kingdom.js file into the assets folder of your instance.
 12. Done!

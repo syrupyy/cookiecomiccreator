@@ -52,6 +52,7 @@ function pagify(sprites, id, offset = 0) {
         img.className = className;
         img.onload = function() {
             img.onclick = function() {
+                if(img.naturalWidth === 0) return;
                 if(id === "backgrounds") {
                     if(comic.selected === null) {
                         if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
