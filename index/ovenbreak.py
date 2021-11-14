@@ -15,17 +15,30 @@ import sys
 def tree_to_dict(tree):
     d = {}
     for index, item in enumerate(tree):
-        if item.tag == 'key':
-            if tree[index + 1].tag == 'string':
+        if item.tag == "key":
+            if tree[index + 1].tag == "string":
                 d[item.text] = tree[index + 1].text
-            elif tree[index + 1].tag == 'true':
+            elif tree[index + 1].tag == "true":
                 d[item.text] = True
-            elif tree[index + 1].tag == 'false':
+            elif tree[index + 1].tag == "false":
                 d[item.text] = False
-            elif tree[index + 1].tag == 'integer':
-                d[item.text] = int(tree[index + 1].text);
-            elif tree[index + 1].tag == 'dict':
+            elif tree[index + 1].tag == "integer":
+                d[item.text] = int(tree[index + 1].text)
+            elif tree[index + 1].tag == "dict":
                 d[item.text] = tree_to_dict(tree[index + 1])
+            elif tree[index + 1].tag == "array":
+                d[item.text] = []
+                for i in tree[index + 1]:
+                    if i.tag == "string":
+                        d[item.text].append(i.text)
+                    elif i.tag == "true":
+                        d[item.text].append(True)
+                    elif i.tag == "false":
+                        d[item.text].append(False)
+                    elif i.tag == "integer":
+                        d[item.text].append(int(i.text))
+                    elif i.tag == "dict":
+                        d[item.text].append(tree_to_dict(i))
     return d
 
 # Define image trim function
@@ -53,7 +66,10 @@ def unpack_texture(file, path, suffix):
             rectlist = frame["frame"].replace("{", "").replace("}", "").split(",")
             width = int(float(rectlist[3] if frame["rotated"] else rectlist[2]))
             height = int(float(rectlist[2] if frame["rotated"] else rectlist[3]))
+            if width == 3 and height == 3:
+                continue
             cropped = im.crop((int(float(rectlist[0])), int(float(rectlist[1])), int(float(rectlist[0])) + width, int(float(rectlist[1])) + height))
+            cropped = trim(cropped)
             if frame["rotated"]:
                 cropped = cropped.transpose(Image.ROTATE_90)
             if not os.path.exists(os.path.split(path)[0]):
@@ -83,6 +99,8 @@ if not os.path.exists("ccb/resources-phonehd/cookie0157_stand.png"):
 
 # Initialize index
 index = dict()
+# I have disabled index resuming as it was unhelpful
+"""
 if os.path.exists("index.js"):
     with open("index.js") as js:
         data = js.read()
@@ -90,10 +108,11 @@ if os.path.exists("index.js"):
         index = json.loads(obj)
         print("Loaded index.js successfully!")
 else:
-    index["cookies"] = dict()
-    index["pets"] = []
-    index["props"] = dict()
-    index["backgrounds"] = []
+"""
+index["cookies"] = dict()
+index["pets"] = []
+index["props"] = dict()
+index["backgrounds"] = []
 forbidden = []
 if os.path.exists("forbidden.txt"):
     with open("forbidden.txt") as txt:
@@ -310,6 +329,34 @@ for subdir, dirs, files in os.walk("ccb"):
                     index["backgrounds"].append(file)
                 print(file)
 
+# Unpack gameplay sprites
+animations = ["bend", "crash", "extra 1", "slide", "transform end", "transform flight", "transform run", "transform start"]
+large = ["cookie0140", "cookie0141", "cookie0150", "cookie0152", "cookie0154", "cookie0155", "cookie0158", "cookie0161", "cookie0163", "cookie0179", "cookie0187", "cookie0189", "cookie0517", "cookie0522"] # Some cookies' gameplay sprites are randomly really big compared to their shop sprites, so we adjust for that with this array
+for subdir, dirs, files in os.walk("image/cookie/resources-common"):
+    for file in files:
+        if file in forbidden:
+            continue
+        if file.endswith("x2_aniinfo.plist"):
+            path = os.path.join(subdir, file).replace("\\", "/")
+            root = ElementTree.fromstring(open(path, "r").read())
+            plist_dict = tree_to_dict(root[0])
+            for key, animation in plist_dict["animationlist"].items():
+                if key not in animations or len(animation["FrameList"]) == 0:
+                    continue
+                cookie = file[0:10]
+                output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
+                if output != None:
+                    index["cookies"][cookie][output] = dict()
+                    if size[1] > 292 or output == "cookie0071x2_0138.png" or output == "cookie0071z01x2_0138.png":
+                        index["cookies"][cookie][output]["width"] = size[0] / 2
+                        index["cookies"][cookie][output]["height"] = size[1] / 2
+                    else:
+                        index["cookies"][cookie][output]["width"] = size[0]
+                        index["cookies"][cookie][output]["height"] = size[1]
+                    if cookie not in large:
+                        index["cookies"][cookie][output]["resize"] = False
+                    print(output)
+
 # Add OvenBreak Infinity sprites and other sprites not in the files
 if os.path.exists("extra.json"):
     with open("extra.json") as extrajson:
@@ -330,6 +377,11 @@ unpack_texture("image/etc/resources-phonehd/effect.png", "img/props/effect/", No
 if not os.path.exists("img/props/jelly"):
     os.makedirs("img/props/jelly")
 unpack_texture("image/jelly/resources-phonehd/basic_jelly.png", "img/props/jelly/", None)
+unpack_texture("image/jelly/resources-phonehd/bear_jelly.png", "img/props/jelly/", None)
+output, size = unpack_texture("image/jelly/resources-phonehd/jelly_bearrainbow_fly.png", "img/props/jelly/", "fly01.png")
+index["props"]["jelly"][output] = dict()
+index["props"]["jelly"][output]["width"] = size[0]
+index["props"]["jelly"][output]["height"] = size[1]
 
 # Sort the index for ease of use
 print("Sorting...")

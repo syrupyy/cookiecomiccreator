@@ -26,6 +26,8 @@ if not os.path.exists("Heads/gingerbrave.png"):
 
 # Initialize index
 index = dict()
+# I have disabled index resuming as it was unhelpful
+"""
 if os.path.exists("../index_kingdom.js"):
     with open("../index_kingdom.js") as js:
         data = js.read()
@@ -33,8 +35,9 @@ if os.path.exists("../index_kingdom.js"):
         index = json.loads(obj)
         print("Loaded index_kingdom.js successfully!")
 else:
-    # Leaving this as an OvenBreak-format dict in case I add backgrounds later
-    index["cookies"] = dict()
+"""
+# Leaving this as an OvenBreak-format dict in case I add backgrounds later
+index["cookies"] = dict()
 banned_stands = ["Almond Cookie", "Black Raison Cookie", "Dark Choco Cookie", "Herb Cookie", "Parfait Cookie", "Red Velvet Cookie", "Rye Cookie"] # Duplicate or near-duplicate     poses
 
 # Walk through and parse all files in folder
