@@ -133,7 +133,7 @@ input[type="text"] {
     margin-top: 4px;
     touch-action: none;
 }
-#cookies, #cookys {
+#cookys {
     background-image: url("../img/heads/cookie0001_head.png");
     background-size: cover;
 }
@@ -193,7 +193,7 @@ input[type="text"] {
 }
 @media screen and (max-width: 1280px) {
     .cookie {
-        zoom: 0.5;
+        zoom: 0.75;
     }
     .background {
         width: 300px;

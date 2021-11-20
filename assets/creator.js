@@ -46,8 +46,13 @@ function pagify(sprites, id, offset = 0) {
         if(sprites.length === 2) {
             if(id === "cookies" && tab === "kingdom") img.src = "assets/img/cookies/kingdom/" + key + "/" + sprite[0];
             else img.src = "assets/img/" + id + "/" + key + "/" + sprite[0];
-            img.width = sprite[1].width;
-            img.height = sprite[1].height;
+            if(id === "cookies" && (!sprite[1].hasOwnProperty("resize") || sprite[1].resize === true)) {
+                img.width = sprite[1].width - sprite[1].width * 0.25;
+                img.height = sprite[1].height - sprite[1].height * 0.25;
+            } else {
+                img.width = sprite[1].width;
+                img.height = sprite[1].height;
+            }
         } else img.src = "assets/img/" + id + "/" + sprite;
         img.className = className;
         img.onload = function() {
@@ -69,15 +74,18 @@ function pagify(sprites, id, offset = 0) {
                     }
                 } else {
                     if((id === "cookies" || id === "pets") && (!sprite[1].hasOwnProperty("resize") || sprite[1].resize === true)) {
+                        var imgCopy = img.cloneNode();
                         if(id === "pets") {
                             var width = img.width * 0.5;
                             var height = img.height * 0.5;
                         } else {
                             var width = sprite[1].width - sprite[1].width * 0.25;
                             var height = sprite[1].height - sprite[1].height * 0.25;
+                            imgCopy.width = sprite[1].width;
+                            imgCopy.height = sprite[1].height;
                         }
-                        if(comic.selected !== null) comic.sprites.push({"img": img, "x": 470 * comic.selected[1] + 235 - width / 2, "y": 336 * comic.selected[0] + 168 - height / 2, "width": width, "height": height, "resized": (id === "pets" ? -2 : -1), "flipped": false, "held": false});
-                        else comic.sprites.push({"img": img, "x": canvas.width / 2 - width / 2, "y": (canvas.height - 48) / 2 - height / 2, "width": width, "height": height, "resized": (id === "pets" ? -2 : -1), "flipped": false, "held": false});
+                        if(comic.selected !== null) comic.sprites.push({"img": imgCopy, "x": 470 * comic.selected[1] + 235 - width / 2, "y": 336 * comic.selected[0] + 168 - height / 2, "width": width, "height": height, "resized": (id === "pets" ? -2 : -1), "flipped": false, "held": false});
+                        else comic.sprites.push({"img": imgCopy, "x": canvas.width / 2 - width / 2, "y": (canvas.height - 48) / 2 - height / 2, "width": width, "height": height, "resized": (id === "pets" ? -2 : -1), "flipped": false, "held": false});
                     } else {
                         if(comic.selected !== null) comic.sprites.push({"img": img, "x": 470 * comic.selected[1] + 235 - img.width / 2, "y": 336 * comic.selected[0] + 168 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "held": false});
                         else comic.sprites.push({"img": img, "x": canvas.width / 2 - img.width / 2, "y": (canvas.height - 48) / 2 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "held": false});
@@ -298,13 +306,14 @@ var textCanvas = document.getElementById("text");
 var textCtx = textCanvas.getContext("2d");
 var images = document.getElementById("images");
 var comic = {"rows": 1, "columns": 3, "title": "", "selected": null, "backgrounds": [], "sprites": []};
+var mobile = false;
 if(window.innerWidth < 980) {
+    mobile = true;
     comic.rows = 2;
     comic.columns = 2;
     canvas.width -= 470;
     canvas.height += 336;
     document.getElementById("remove-row").disabled = false;
-    document.getElementById("add-column").disabled = false;
 }
 var tab = "ovenbreak";
 var holding = false;
@@ -596,7 +605,7 @@ document.getElementById("add-row").onclick = function() {
     canvas.height += 336;
     comic.selected = null;
     render();
-    if(comic.rows === 4) this.disabled = true;
+    if(comic.rows >= (mobile ? 4 : 5)) this.disabled = true;
     else document.getElementById("remove-row").disabled = false;
 }
 
@@ -616,7 +625,7 @@ document.getElementById("add-column").onclick = function() {
     canvas.width += 470;
     comic.selected = null;
     render();
-    if(comic.columns === 3) this.disabled = true;
+    if(comic.columns >= (mobile ? 3 : 4)) this.disabled = true;
     else document.getElementById("remove-column").disabled = false;
 }
 
