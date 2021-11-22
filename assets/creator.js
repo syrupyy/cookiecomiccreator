@@ -23,7 +23,8 @@ function pagify(sprites, id, offset = 0) {
     images.innerHTML = "";
     if(offset !== 0 || entries.length > newOffset) {
         var previous = document.createElement("button");
-        previous.innerText = "Previous Page";
+        if(language === "ko") previous.innerText = "이전 페이지로 가기";
+        else previous.innerText = "Previous Page";
         previous.id = "previous-page";
         if(offset === 0) previous.disabled = true;
         else previous.onclick = function() {
@@ -31,7 +32,8 @@ function pagify(sprites, id, offset = 0) {
         }
         images.appendChild(previous);
         var next = document.createElement("button");
-        next.innerText = "Next Page";
+        if(language === "ko") next.innerText = "다음 페이지로 가기";
+        else next.innerText = "Next Page";
         next.id = "next-page";
         if(newOffset >= entries.length) next.disabled = true;
         else next.onclick = function() {
@@ -111,9 +113,10 @@ function pagify(sprites, id, offset = 0) {
         }
         images.appendChild(nextClone);
     }
-    if(sprites.length === 2 && ["dark_cacao", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
+    if(sprites.length === 2 && ["cotton", "dark_cacao", "frost_queen", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
         var p = document.createElement("p");
-        p.innerHTML = '(Sprites provided by <a href="https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki">the Cookie Run: Kingdom Wiki</a>)';
+        if(language === "ko") p.innerHTML = '스프라이트는 <a href="https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki">the Cookie Run: Kingdom Wiki</a>에서 제공했습니다.';
+        else p.innerHTML = '(Sprites provided by <a href="https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki">the Cookie Run: Kingdom Wiki</a>)';
         images.appendChild(p);
     }
 }
@@ -164,10 +167,16 @@ function render() {
     ctx.font = "Bold 24px CookieRun, Open Sans, sans-serif";
     ctx.fillStyle = "black";
     ctx.textAlign = "left";
-    if(comic.selected !== null && comic.selected[0] === -1) ctx.fillText("Select a panel to place the background", 10, canvas.height - 20);
-    else if(comic.selected !== null && comic.selected[0] === -2) ctx.fillText("Select a panel to copy", 10, canvas.height - 20);
-    else if(comic.selected !== null && comic.selected[0] === -3) ctx.fillText("Select a panel to paste over", 10, canvas.height - 20);
-    else ctx.fillText(comic.title, 10, canvas.height - 20);
+    if(comic.selected !== null && comic.selected[0] === -1) {
+        if(language === "ko") ctx.fillText("배경을 배치할 패널 선택", 10, canvas.height - 20);
+        else ctx.fillText("Select a panel to place the background", 10, canvas.height - 20);
+    } else if(comic.selected !== null && comic.selected[0] === -2) {
+        if(language === "ko") ctx.fillText("복사할 패널 선택", 10, canvas.height - 20);
+        else ctx.fillText("Select a panel to copy", 10, canvas.height - 20);
+    } else if(comic.selected !== null && comic.selected[0] === -3) {
+        if(language === "ko") ctx.fillText("교체할 패널 선택", 10, canvas.height - 20);
+        else ctx.fillText("Select a panel to paste over", 10, canvas.height - 20);
+    } else ctx.fillText(comic.title, 10, canvas.height - 20);
 }
 
 // Draw a textbox to the textbox canvas
@@ -315,6 +324,7 @@ if(window.innerWidth < 980) {
     canvas.height += 336;
     document.getElementById("remove-row").disabled = false;
 }
+var language = document.documentElement.getAttribute("lang");
 var tab = "ovenbreak";
 var holding = false;
 var startX, startY;
@@ -390,7 +400,8 @@ canvas.onmousedown = function(event) {
                             splices.forEach(function(splice, i) {
                                 comic.sprites.splice(splice - i, 1);
                             });
-                            document.getElementById("copy-panel").textContent = "Copy Panel";
+                            if(language === "ko") document.getElementById("copy-panel").textContent = "컷 복사하기";
+                            else document.getElementById("copy-panel").textContent = "Copy Panel";
                             comic.selected = null;
                         }
                     } else comic.selected = [i, i2];
@@ -512,7 +523,8 @@ document.getElementById("textboxes").onclick = function() {
         };
         images.appendChild(text);
         var button = document.createElement("button");
-        button.innerText = "Create";
+        if(language === "ko") button.innerText = "만들기";
+        else button.innerText = "Create";
         button.id = "create";
         button.disabled = true;
         images.appendChild(button);
@@ -645,8 +657,13 @@ document.getElementById("copy-panel").onclick = function() {
     if(comic.selected === null || comic.selected[0] === -1) comic.selected = [-2, 0];
     else if(comic.selected[0] >= 0) comic.selected = [-3, comic.selected];
     else comic.selected = null;
-    if(comic.selected !== null) this.textContent = "Cancel Copy";
-    else this.textContent = "Copy Panel";
+    if(comic.selected !== null) {
+        if(language === "ko") this.textContent = "복사 취소";
+        else this.textContent = "Cancel Copy";
+    } else {
+        if(language === "ko") this.textContent = "컷 복사하기";
+        else this.textContent = "Copy Panel";
+    }
     render();
 }
 
@@ -669,7 +686,10 @@ document.getElementById("save-image").onclick = function() {
         else link.download = title + ".png";
         link.click();
     } catch(err) {
-        if(err.code === 18) alert("Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic.");
+        if(err.code === 18) {
+            if(language === "ko") alert("웹 브라우저 제한으로 인해 로컬 파일에서 이 웹 사이트를 실행하는 동안 다운로드 버튼이 작동하지 않습니다. 대신 만화를 마우스 오른쪽 버튼으로 클릭하거나 길게 누르고 \"이미지 다운로드를\"을 선택하여 만화를 저장합니다.");
+            else alert("Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic.");
+        }
         else alert(err);
     }
 }
