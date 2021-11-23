@@ -113,7 +113,7 @@ function pagify(sprites, id, offset = 0) {
         }
         images.appendChild(nextClone);
     }
-    if(sprites.length === 2 && ["cotton", "dark_cacao", "frost_queen", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
+    if(sprites.length === 2 && ["dark_cacao", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
         var p = document.createElement("p");
         if(language === "ko") p.innerHTML = '스프라이트는 <a href="https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki">the Cookie Run: Kingdom Wiki</a>에서 제공했습니다.';
         else p.innerHTML = '(Sprites provided by <a href="https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki">the Cookie Run: Kingdom Wiki</a>)';
