@@ -459,6 +459,9 @@ cookie0187z01_state_happy_ani00.png
 cookie0188_secondx2_0007.png
 cookie0189x2_0040.png
 cookie0189x2_0041.png
+cookie0190x2_0082.png
+cookie0190z01x2_0082.png
+cookie0191x2_aniinfo.plist
 cookie0503x2_0096.png
 cookie0503z01x2_0096.png
 cookie0522_secondx2_0001.png
@@ -652,6 +655,8 @@ ov_game_eff_pu_1.png
 ov_game_eff_re_1.png
 ov_game_eff_wh_1.png
 ov_game_eff_ye_1.png
+pet0191_shop.png
+pet0191z01_shop.png
 play_energy_icon_3.png
 play_energy_warning_back.png
 play_restart_1.png

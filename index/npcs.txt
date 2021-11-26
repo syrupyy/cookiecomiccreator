@@ -11,6 +11,14 @@ ccb/cutscene6005/resources-phonehd/naga_smile.png
 ccb/cutscene6005/resources-phonehd/naga_standard.png
 ccb/cutscene6005/resources-phonehd/plainyogurt_guileful.png
 ccb/cutscene6005/resources-phonehd/plainyogurt_standard.png
+ccb/cutscene6007/resources-phonehd/butterbear_smile.png
+ccb/cutscene6007/resources-phonehd/butterbear_standard.png
+ccb/cutscene6007/resources-phonehd/child_cookie_standard.png
+ccb/cutscene6007/resources-phonehd/lollipop_glum.png
+ccb/cutscene6007/resources-phonehd/lollipop_pride.png
+ccb/cutscene6007/resources-phonehd/lollipop_standard.png
+ccb/cutscene6007/resources-phonehd/squirrel_serious.png
+ccb/cutscene6007/resources-phonehd/squirrel_standard.png
 ccb/cutscene9003/resources-phonehd/a_hermit_carb_standard.png
 ccb/cutscene9003/resources-phonehd/a_hermit_carb_whisper.png
 ccb/cutscene9011/resources-phonehd/artichoke_cookie_smile.png

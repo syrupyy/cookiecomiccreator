@@ -449,7 +449,7 @@ if os.path.exists("Patch"):
                         index["cookies"][cookie][output]["resize"] = False
                         print(output)
                     i += 1
-    pets = ["pet03", "pet04", "pet05", "pet06", "pet07", "pet08", "pet09", "pet10", "pet14", "pet19", "pet27", "pet29", "pet30", "pet39", "pet43", "pet44", "pet49", "pet57", "pet62", "pet65", "pet68", "pet901", "pet902"]
+    pets = ["pet03", "pet04", "pet05", "pet07", "pet08", "pet09", "pet10", "pet14", "pet19", "pet27", "pet29", "pet30", "pet39", "pet43", "pet44", "pet49", "pet57", "pet62", "pet65", "pet68", "pet901", "pet902"]
     root = ElementTree.fromstring(open("Patch/kakaoBC_HD/shop_item_pet.plist", "r").read())
     plist_dict = tree_to_dict(root[0])
     for key in plist_dict["frames"].keys():
