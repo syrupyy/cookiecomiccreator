@@ -2,9 +2,9 @@ cutscene0139_01.png
 cutscene0147_01.png
 cutscene0147_02.png
 cutscene6001_00_2.png
+cutscene6001_01.png
 cutscene6001_05.png
 cutscene6001_06.png
-img_cutscene6001_01_07.png
 cutscene6002_12.png
 cutscene6003_02.png
 cutscene6003_05.png

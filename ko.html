@@ -10,9 +10,17 @@
         <meta property="og:title" content="Cookie Run Comic Creator">
         <meta property="og:type" content="article">
         <meta property="og:description" content="쿠키런 게임 속 캐릭터들로 만화를 만들어 친구들에게 보내주세요!">
+        <meta property="og:locale" content="ko_KR">
+        <meta property="og:locale:alternate" content="en_US">
+        <meta property="og:locale:alternate" content="es_LA">
+        <link rel="alternate" hreflang="x-default" href="index.html">
+        <link rel="alternate" hreflang="en-US" href="index.html">
+        <link rel="alternate" hreflang="es-LA" href="es.html">
+        <link rel="alternate" hreflang="ko-KR" href="ko.html">
         <link rel="shortcut icon" type="image/png" href="assets/img/favicon.png">
         <link rel="stylesheet" href="assets/css/normalize.css">
         <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="assets/css/themes.css">
     </head>
     <body>
         <h1>Cookie Comic Creator</h1>
@@ -54,10 +62,18 @@
             <div id="images"></div>
             <canvas id="text" class="none" width="0" height="0"></canvas>
         </div>
+        <div class="theme-selector-container">
+            <span class="theme-selector">테마 변경
+                <span class="theme" name="classic" title="원래의"><span class="theme-label">원래의</span></span>
+                <span class="theme" name="kingdom" title="킹덤"><span class="theme-label">킹덤</span></span>
+                <span class="theme" name="kingdom dark" title="킹덤(다크)"><span class="theme-label">킹덤(다크)</span></span>
+                <span class="theme" name="black" title="블랙"><span class="theme-label">블랙</span></span>
+            </span>
+        </div>
         <script src="assets/index.js"></script>
         <script src="assets/index_kingdom.js"></script>
         <script src="assets/creator.js"></script>
-        <p><a href="index.html">English</a> &bull; <a href="ko.html">한국어</a></p>
+        <p><a href="index.html">English</a> &bull; <a href="es.html">Español</a> &bull; <a href="ko.html">한국어</a></p>
         <p>Cookie Comic Creator는 Devsisters가 만들지 않은 팬 프로젝트입니다.<br><a href="https://game.devsisters.com/en/cookierun/">게임을 다운로드 해서 데브시스터즈(Devsisters)를 도와주세요!</a></p>
         <p>이 페이지에는 데브시스터즈에서 제작한 "쿠키런 글꼴"이 적용되어 있습니다. <a href="https://www.cookierunfont.com/static/download/License_ko_en.pdf" target="_blank">(허가서)</a></p>
         <p>만든 사람 syrupyy &#129412; <a href="https://syrupyy.tumblr.com/">Tumblr</a><br>만약 제안하실게 있거나, 문제점을  발견하셨다면 아래 주소로 연락주세요!<br><a href="https://twitter.com/syrupyy_pluto">Twitter: @syrupyy_pluto</a> &bull; <a href="https://github.com/syrupyy/cookiecomiccreator">GitHub (MIT 허가서)</a></p>

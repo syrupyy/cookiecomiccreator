@@ -38,6 +38,12 @@ button:disabled {
 canvas {
     max-width: 100%;
 }
+hr {
+    height: 2px;
+    color: #a2a2a2;
+    background-color: #a2a2a2;
+    border-width: 0;
+}
 textarea {
     width: calc(100% - 84px);
     height: 40px;
@@ -111,6 +117,9 @@ input[type="text"] {
 .column button.noblock {
     display: inline;
 }
+html[lang="es"] .column button.noblock {
+    width: 34px;
+}
 .row {
     display: inline-block;
 }
@@ -129,8 +138,12 @@ input[type="text"] {
 .none {
     display: none;
 }
+ins.adsbygoogle {
+    margin-top: 8px;
+}
 #comic {
     margin-top: 4px;
+    border-radius: 5px;
     touch-action: none;
 }
 #cookys {
@@ -156,7 +169,7 @@ input[type="text"] {
 #text-buttons {
     flex-shrink: 0;
 }
-#flip {
+html:not([lang="es"]) #flip, html[lang="es"] #copy-panel, html[lang="es"] #save-image {
     width: 67px;
 }
 #back {
@@ -187,9 +200,44 @@ input[type="text"] {
 #next-page, #previous-page {
     width: 148px;
     height: 36px;
+    margin-bottom: 8px;
 }
 #next-page, #previous-page, #text {
     margin-top: 8px;
+}
+.theme-selector-container {
+    margin-top: 8px;
+}
+.theme-selector {
+    background-color: #f1eee5;
+    border: 2px solid #a2a2a2;
+    border-radius: 10px;
+    padding: 4px 8px;
+    user-select: none;
+}
+.theme-selector .theme {
+    display: inline-block;
+    position: relative;
+    top: 6px;
+    width: 24px;
+    height: 24px;
+    margin-left: 2px;
+    border-radius: 4px;
+}
+.theme-selector .theme[name="classic"] {
+    background-color: #ffd71e;
+}
+.theme-selector .theme[name="kingdom"] {
+    background-color: #659dd7;
+}
+.theme-selector .theme[name="kingdom dark"] {
+    background-color: #2c364e;
+}
+.theme-selector .theme[name="black"] {
+    background-color: #000;
+}
+.theme-selector .theme .theme-label {
+    display: none;
 }
 @media screen and (max-width: 1280px) {
     .cookie {

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <title>Cookie Comic Creator</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="apple-mobile-web-app-title" content="Comic Creator">
+        <meta name="description" content="¡Crea comics con tus personajes favoritos de la franquicia de Cookie Run, y envíaselos a tus amigos!">
+        <meta name="keywords" content="CookieRun, OvenBreak, Kingdom, manga, maker, syrupyy">
+        <meta property="og:title" content="Creador de Comics de Cookie Run">
+        <meta property="og:type" content="article">
+        <meta property="og:description" content="¡Crea comics con tus personajes favoritos de la franquicia de Cookie Run, y envíaselos a tus amigos!">
+        <meta property="og:locale" content="es_LA">
+        <meta property="og:locale:alternate" content="en_US">
+        <meta property="og:locale:alternate" content="ko_KR">
+        <link rel="alternate" hreflang="x-default" href="index.html">
+        <link rel="alternate" hreflang="en-US" href="index.html">
+        <link rel="alternate" hreflang="es-LA" href="es.html">
+        <link rel="alternate" hreflang="ko-KR" href="ko.html">
+        <link rel="shortcut icon" type="image/png" href="assets/img/favicon.png">
+        <link rel="stylesheet" href="assets/css/normalize.css">
+        <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="assets/css/themes.css">
+    </head>
+    <body>
+        <h1>Cookie Comic Creator</h1>
+        <p>¡    Crea comics con tus personajes favoritos de la franquicia de Cookie Run, y envíaselos a tus amigos!</p>
+        <noscript>JavaScript debe de estar habilitado para usar este sitio.</noscript>
+        <div class="creator">
+            <span class="center">
+                <canvas id="comic" width="1410" height="384"></canvas>
+            </span>
+            <div class="creator-buttons flex">
+                <span>
+                    <button id="cookys" class="openable" title="Galletas"></button>
+                    <button id="pets" class="openable" title="Mascotas"></button>
+                    <button id="props" class="openable" title="Accesorios, gomitas y tesoros"></button>
+                    <button id="textboxes" class="openable" title="Globos de texto"></button>
+                    <button id="backgrounds" class="openable" title="Fondos"></button><br>
+                    <input id="title" type="text" placeholder="Nombre" maxlength="50">
+                </span>
+                <div class="right-buttons">
+                    <div id="controls" class="column">
+                        <button id="increase-size" class="noblock" disabled>+</button>
+                        <button id="decrease-size" class="noblock" disabled>-</button>
+                        <button id="flip" disabled>Voltear</button>
+                    </div>
+                    <div class="column">
+                        <button id="add-row">+ Fila</button>
+                        <button id="remove-row" disabled>- Fila</button>
+                    </div>
+                    <div class="column thick">
+                        <button id="add-column">+ Columna</button>
+                        <button id="remove-column">- Columna</button>
+                    </div>
+                    <div class="row"><button id="copy-panel">Copiar Viñeta</button><button id="save-image">Guardar Imágen</button></div><br>
+                    <span id="tabs" class="none"><button class="tab" id="ovenbreak">OvenBreak/LINE</button><button class="tab unopened" id="kingdom">Kingdom</button></span>
+                    <button id="back" class="none">Regresar</button>
+                </div>
+            </div>
+            <div id="images"></div>
+            <canvas id="text" class="none" width="0" height="0"></canvas>
+        </div>
+        <div class="theme-selector-container">
+            <span class="theme-selector">Cambiar tema
+                <span class="theme" name="classic" title="Clásico"><span class="theme-label">Clásico</span></span>
+                <span class="theme" name="kingdom" title="Kingdom"><span class="theme-label">Kingdom</span></span>
+                <span class="theme" name="kingdom dark" title="Kingdom (Oscuro)"><span class="theme-label">Kingdom (Oscuro)</span></span>
+                <span class="theme" name="black" title="Negro"><span class="theme-label">Negro</span></span>
+            </span>
+        </div>
+        <script src="assets/index.js"></script>
+        <script src="assets/index_kingdom.js"></script>
+        <script src="assets/creator.js"></script>
+        <p><a href="index.html">English</a> &bull; <a href="es.html">Español</a> &bull; <a href="ko.html">한국어</a></p>
+        <p>"Cookie Comic Creator" es un proyecto fan. No se encuentra afiliado con la compañia Devsisters.<br><a href="https://game.devsisters.com/en/cookierun/">¡Por favor, apoyenlos en la página oficial de Cookie Run!</a></p>
+        <p>Este sitio usa la fuente "CookieRun", de Devsisters. <a href="https://www.cookierunfont.com/static/download/License_ko_en.pdf" target="_blank">Licencia (inglés / coreano)</a></p>
+        <p>creado por syrupyy &#129412; <a href="https://syrupyy.tumblr.com/">tumblr</a><br>si tienes sugerencias, o encuentras un bug, ¡puedes mensajearme! (los mensajes al español serán traducidos)<br><a href="https://twitter.com/syrupyy_pluto">twitter: @syrupyy_pluto</a> &bull; <a href="https://github.com/syrupyy/cookiecomiccreator">github (mit license)</a></p>
+    </body>
+</html>

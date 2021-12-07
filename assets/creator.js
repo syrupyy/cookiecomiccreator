@@ -3,185 +3,9 @@
 
 // Functions
 
-// Load an image into the canvas
-function loadImage(url, callback) {
-    var img = new Image();
-    img.onload = function() {
-        callback(img);
-    };
-    img.src = url;
-}
-
-// Print a page of sprites
-function pagify(sprites, id, offset = 0) {
-    var className = id.slice(0, -1);
-    var newOffset = offset + (id === "backgrounds" ? 12 : 20);
-    if(sprites.length === 2) {
-        var key = sprites[0];
-        var entries = Object.entries(sprites[1]);
-    } else var entries = sprites;
-    images.innerHTML = "";
-    if(offset !== 0 || entries.length > newOffset) {
-        var previous = document.createElement("button");
-        if(language === "ko") previous.innerText = "이전 페이지로 가기";
-        else previous.innerText = "Previous Page";
-        previous.id = "previous-page";
-        if(offset === 0) previous.disabled = true;
-        else previous.onclick = function() {
-            pagify(sprites, id, offset - (id === "backgrounds" ? 12 : 20));
-        }
-        images.appendChild(previous);
-        var next = document.createElement("button");
-        if(language === "ko") next.innerText = "다음 페이지로 가기";
-        else next.innerText = "Next Page";
-        next.id = "next-page";
-        if(newOffset >= entries.length) next.disabled = true;
-        else next.onclick = function() {
-            pagify(sprites, id, newOffset);
-        }
-        images.appendChild(next);
-        images.appendChild(document.createElement("br"));
-    }
-    entries.forEach(function(sprite, i) {
-        if(i < offset || i >= newOffset) return;
-        var img = document.createElement("img");
-        if(sprites.length === 2) {
-            if(id === "cookies" && tab === "kingdom") img.src = "assets/img/cookies/kingdom/" + key + "/" + sprite[0];
-            else img.src = "assets/img/" + id + "/" + key + "/" + sprite[0];
-            if(id === "cookies" && (!sprite[1].hasOwnProperty("resize") || sprite[1].resize === true)) {
-                img.width = sprite[1].width - sprite[1].width * 0.25;
-                img.height = sprite[1].height - sprite[1].height * 0.25;
-            } else {
-                img.width = sprite[1].width;
-                img.height = sprite[1].height;
-            }
-        } else img.src = "assets/img/" + id + "/" + sprite;
-        img.className = className;
-        img.onload = function() {
-            img.onclick = function() {
-                if(img.naturalWidth === 0) return;
-                if(id === "backgrounds") {
-                    if(comic.selected === null) {
-                        if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
-                        comic.selected = [-1, img];
-                    } else {
-                        var backgroundX = 470 * comic.selected[1] + 8;
-                        var backgroundY = 336 * comic.selected[0] + 8;
-                        comic.backgrounds.forEach(function(background, index) {
-                            if(background.x === backgroundX && background.y === backgroundY) comic.backgrounds.splice(index, 1);
-                        });
-                        if(sprite !== "bg_none.png") comic.backgrounds.push({"img": img, "x": backgroundX, "y": backgroundY});
-                        comic.selected = null;
-                        if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
-                    }
-                } else {
-                    if((id === "cookies" || id === "pets") && (!sprite[1].hasOwnProperty("resize") || sprite[1].resize === true)) {
-                        var imgCopy = img.cloneNode();
-                        if(id === "pets") {
-                            var width = img.width * 0.5;
-                            var height = img.height * 0.5;
-                        } else {
-                            var width = sprite[1].width - sprite[1].width * 0.25;
-                            var height = sprite[1].height - sprite[1].height * 0.25;
-                            imgCopy.width = sprite[1].width;
-                            imgCopy.height = sprite[1].height;
-                        }
-                        if(comic.selected !== null) comic.sprites.push({"img": imgCopy, "x": 470 * comic.selected[1] + 235 - width / 2, "y": 336 * comic.selected[0] + 168 - height / 2, "width": width, "height": height, "resized": (id === "pets" ? -2 : -1), "flipped": false, "held": false});
-                        else comic.sprites.push({"img": imgCopy, "x": canvas.width / 2 - width / 2, "y": (canvas.height - 48) / 2 - height / 2, "width": width, "height": height, "resized": (id === "pets" ? -2 : -1), "flipped": false, "held": false});
-                    } else {
-                        if(comic.selected !== null) comic.sprites.push({"img": img, "x": 470 * comic.selected[1] + 235 - img.width / 2, "y": 336 * comic.selected[0] + 168 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "held": false});
-                        else comic.sprites.push({"img": img, "x": canvas.width / 2 - img.width / 2, "y": (canvas.height - 48) / 2 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "held": false});
-                    }
-                    toggleControls(false);
-                    if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
-                }
-                render();
-            }
-        }
-        images.appendChild(img);
-    });
-    if(typeof next !== "undefined") {
-        images.appendChild(document.createElement("br"));
-        var previousClone = previous.cloneNode(true);
-        if(!previous.disabled) previousClone.onclick = function() {
-            pagify(sprites, id, offset - (id === "backgrounds" ? 12 : 20));
-        }
-        images.appendChild(previousClone);
-        var nextClone = next.cloneNode(true);
-        if(!next.disabled) nextClone.onclick = function() {
-            pagify(sprites, id, newOffset);
-        }
-        images.appendChild(nextClone);
-    }
-    if(sprites.length === 2 && ["dark_cacao", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
-        var p = document.createElement("p");
-        if(language === "ko") p.innerHTML = '스프라이트는 <a href="https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki">the Cookie Run: Kingdom Wiki</a>에서 제공했습니다.';
-        else p.innerHTML = '(Sprites provided by <a href="https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki">the Cookie Run: Kingdom Wiki</a>)';
-        images.appendChild(p);
-    }
-}
-
-// (Re)render the canvas
-function render() {
-    ctx.beginPath();
-    ctx.rect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "white";
-    ctx.fill();
-    ctx.beginPath();
-    ctx.lineWidth = "4";
-    ctx.strokeStyle = "black";
-    ctx.imageSmoothingQuality = "high";
-    comic.backgrounds.forEach(function(element) {
-        ctx.drawImage(element.img, element.x, element.y);
-    });
-    comic.sprites.forEach(function(element) {
-        if(element.flipped) {
-            ctx.save();
-            ctx.translate(element.x + element.width / 2, element.y + element.height / 2);
-            ctx.scale(-1, 1);
-            ctx.drawImage(element.img, -element.width / 2, -element.height / 2, element.width, element.height);
-            ctx.restore();
-        } else ctx.drawImage(element.img, element.x, element.y, element.width, element.height);
-    });
-    ctx.fillRect(0, 0, canvas.width, 6);
-    ctx.fillRect(0, 0, 6, canvas.height);
-    if(comic.selected !== null && comic.selected[0] < 0) ctx.strokeStyle = "#ffd71e";
-    for(var i = 0; i < comic.rows; i++) for(var i2 = 0; i2 < comic.columns; i2++) {
-        ctx.rect(470 * i2 + 8, 336 * i + 8, 454, 320);
-        ctx.stroke();
-        ctx.fillRect(470 * i2 + 464, 336 * i + 6, 12, 336);
-        ctx.fillRect(470 * i2 + 6, 336 * i + 330, 464, 12);
-    }
-    if(comic.selected !== null && comic.selected[0] >= 0) {
-        ctx.beginPath();
-        ctx.strokeStyle = "#ffd71e";
-        ctx.rect(470 * comic.selected[1] + 8, 336 * comic.selected[0] + 8, 454, 320);
-        ctx.stroke();
-    } else if(comic.selected !== null && comic.selected[0] === -3) {
-        ctx.beginPath();
-        ctx.strokeStyle = "black";
-        ctx.rect(470 * comic.selected[1][1] + 8, 336 * comic.selected[1][0] + 8, 454, 320);
-        ctx.stroke();
-    }
-    ctx.fillRect(0, canvas.height - 48, canvas.width, 48);
-    ctx.font = "Bold 24px CookieRun, Open Sans, sans-serif";
-    ctx.fillStyle = "black";
-    ctx.textAlign = "left";
-    if(comic.selected !== null && comic.selected[0] === -1) {
-        if(language === "ko") ctx.fillText("배경을 배치할 패널 선택", 10, canvas.height - 20);
-        else ctx.fillText("Select a panel to place the background", 10, canvas.height - 20);
-    } else if(comic.selected !== null && comic.selected[0] === -2) {
-        if(language === "ko") ctx.fillText("복사할 패널 선택", 10, canvas.height - 20);
-        else ctx.fillText("Select a panel to copy", 10, canvas.height - 20);
-    } else if(comic.selected !== null && comic.selected[0] === -3) {
-        if(language === "ko") ctx.fillText("교체할 패널 선택", 10, canvas.height - 20);
-        else ctx.fillText("Select a panel to paste over", 10, canvas.height - 20);
-    } else ctx.fillText(comic.title, 10, canvas.height - 20);
-}
-
 // Draw a textbox to the textbox canvas
 function drawTextbox() {
-	var inputWords = document.getElementById("textbox").value.split(" ");
+    var inputWords = document.getElementById("textbox").value.split(" ");
     var inputLines = [""];
     var currentLine = 0;
     textCtx.font = "Bold 18px CookieRun, Open Sans, sans-serif";
@@ -295,9 +119,263 @@ function drawTextbox() {
 
                 // Undisable the create button
                 document.getElementById("create").disabled = false;
+            };
+        };
+    };
+}
+
+// Load an image into the canvas
+function loadImage(url, callback) {
+    var img = new Image();
+    img.onload = function() {
+        callback(img);
+    };
+    img.src = url;
+}
+
+// Print a page of sprites
+function pagify(sprites, id, offset = 0) {
+    var className = id.slice(0, -1);
+    var newOffset = offset + (id === "backgrounds" ? 12 : 20);
+    if(sprites.length === 2) {
+        var key = sprites[0];
+        var entries = Object.entries(sprites[1]);
+    } else var entries = sprites;
+    images.innerHTML = "";
+    if(offset === 0) pageHistory = [];
+    if(offset !== 0 || entries.length > newOffset) {
+        var previous = document.createElement("button");
+        previous.innerText = translateText("Previous Page");
+        previous.id = "previous-page";
+        if(offset === 0) previous.disabled = true;
+        else previous.onclick = function() {
+            pagify(sprites, id, id === "cookies" && key.startsWith("cookie") ? pageHistory[0] : offset - (id === "backgrounds" ? 12 : 20));
+            pageHistory.shift();
+        };
+        images.appendChild(previous);
+        var next = document.createElement("button");
+        next.innerText = translateText("Next Page");
+        next.id = "next-page";
+        if(newOffset >= entries.length) next.disabled = true;
+        else next.onclick = function() {
+            pagify(sprites, id, newOffset);
+            pageHistory.unshift(offset);
+        };
+        images.appendChild(next);
+        images.appendChild(document.createElement("br"));
+    }
+    var ovenbreakOffset = offset;
+    entries.forEach(function(sprite, i) {
+        if(id === "cookies" && key.startsWith("cookie")) {
+            if(i < ovenbreakOffset) return;
+            if(sprite[0].endsWith("_shop.png") && i - ovenbreakOffset > 3) {
+                if(i - ovenbreakOffset < 10) {
+                    ovenbreakOffset = i;
+                    images.appendChild(document.createElement("hr"));
+                } else {
+                    newOffset = i;
+                    ovenbreakOffset = 9999;
+                    return;
+                }
             }
+            if(typeof next !== "undefined" && entries.length - 1 === i) next.disabled = true;
+        } else if(i < offset || i >= newOffset) return;
+        var img = document.createElement("img");
+        if(sprites.length === 2) {
+            if(id === "cookies" && openTabs[0] === "kingdom") img.src = "assets/img/cookies/kingdom/" + key + "/" + sprite[0];
+            else img.src = "assets/img/" + id + "/" + key + "/" + sprite[0];
+            if(id === "cookies" && (!sprite[1].hasOwnProperty("resize") || sprite[1].resize === true)) {
+                img.width = sprite[1].width - sprite[1].width * 0.25;
+                img.height = sprite[1].height - sprite[1].height * 0.25;
+            } else {
+                img.width = sprite[1].width;
+                img.height = sprite[1].height;
+            }
+        } else img.src = "assets/img/" + id + "/" + sprite;
+        img.className = className;
+        img.onload = function() {
+            img.onclick = function() {
+                if(img.naturalWidth === 0) return;
+                if(id === "backgrounds") {
+                    if(sprite === "bg_custom.png") {
+                        var file = document.createElement("input");
+                        file.setAttribute("type", "file");
+                        file.setAttribute("accept", "image/*");
+                        file.className = "none";
+                        file.onchange = function() {
+                            if(file.files.length) {
+                                var img = new Image();
+                                img.onload = function() {
+                                    if(img.width > 0 && img.height > 0) {
+                                        var imgCanvas = document.createElement("canvas");
+                                        imgCanvas.width = 454;
+                                        imgCanvas.height = 320;
+                                        var imgCtx = imgCanvas.getContext("2d");
+                                        imgCtx.imageSmoothingQuality = "high";
+                                        if(img.width / img.height < 1.41875) {
+                                            var newHeight = img.height / img.width * 454;
+                                            imgCtx.drawImage(img, 0, (320 - newHeight) / 2, 454, newHeight);
+                                        } else {
+                                            var newWidth = img.width / img.height * 320;
+                                            imgCtx.drawImage(img, (454 - newWidth) / 2, 0, newWidth, 320);
+                                        }
+                                        var newImg = new Image();
+                                        newImg.onload = function() {
+                                            if(comic.selected === null || comic.selected[0] < 0) {
+                                                if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
+                                                resetCopy();
+                                                comic.selected = [-1, newImg];
+                                            } else {
+                                                var backgroundX = 470 * comic.selected[1] + 8;
+                                                var backgroundY = 336 * comic.selected[0] + 8;
+                                                comic.backgrounds.forEach(function(background, index) {
+                                                    if(background.x === backgroundX && background.y === backgroundY) comic.backgrounds.splice(index, 1);
+                                                });
+                                                comic.backgrounds.push({"img": newImg, "x": backgroundX, "y": backgroundY});
+                                                comic.selected = null;
+                                                if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
+                                            }
+                                            render();
+                                        };
+                                        newImg.src = imgCanvas.toDataURL();
+                                    }
+                                };
+                                img.src = URL.createObjectURL(file.files[0]);
+                            }
+                        };
+                        file.click();
+                    } else {
+                        if(comic.selected === null || comic.selected[0] < 0) {
+                            if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
+                            resetCopy();
+                            comic.selected = [-1, img];
+                        } else {
+                            var backgroundX = 470 * comic.selected[1] + 8;
+                            var backgroundY = 336 * comic.selected[0] + 8;
+                            comic.backgrounds.forEach(function(background, index) {
+                                if(background.x === backgroundX && background.y === backgroundY) comic.backgrounds.splice(index, 1);
+                            });
+                            if(sprite !== "bg_none.png") comic.backgrounds.push({"img": img, "x": backgroundX, "y": backgroundY});
+                            comic.selected = null;
+                            if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
+                        }
+                    }
+                } else {
+                    if((id === "cookies" || id === "pets") && (!sprite[1].hasOwnProperty("resize") || sprite[1].resize === true)) {
+                        var imgCopy = img.cloneNode();
+                        if(id === "pets") {
+                            var width = img.width * 0.5;
+                            var height = img.height * 0.5;
+                        } else {
+                            var width = sprite[1].width - sprite[1].width * 0.25;
+                            var height = sprite[1].height - sprite[1].height * 0.25;
+                            imgCopy.width = sprite[1].width;
+                            imgCopy.height = sprite[1].height;
+                        }
+                        if(comic.selected !== null) comic.sprites.push({"img": imgCopy, "x": 470 * comic.selected[1] + 235 - width / 2, "y": 336 * comic.selected[0] + 168 - height / 2, "width": width, "height": height, "resized": (id === "pets" ? -2 : -1), "flipped": false, "held": false});
+                        else comic.sprites.push({"img": imgCopy, "x": canvas.width / 2 - width / 2, "y": (canvas.height - 48) / 2 - height / 2, "width": width, "height": height, "resized": (id === "pets" ? -2 : -1), "flipped": false, "held": false});
+                    } else {
+                        if(comic.selected !== null) comic.sprites.push({"img": img, "x": 470 * comic.selected[1] + 235 - img.width / 2, "y": 336 * comic.selected[0] + 168 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "held": false});
+                        else comic.sprites.push({"img": img, "x": canvas.width / 2 - img.width / 2, "y": (canvas.height - 48) / 2 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "held": false});
+                    }
+                    toggleControls(false);
+                    if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
+                }
+                render();
+            };
+        };
+        images.appendChild(img);
+    });
+    if(typeof next !== "undefined") {
+        if(!next.disabled || !previous.disabled) {
+            images.appendChild(document.createElement("br"));
+            var previousClone = previous.cloneNode(true);
+            if(!previous.disabled) previousClone.onclick = function() {
+                pagify(sprites, id, id === "cookies" && key.startsWith("cookie") ? pageHistory[0] : offset - (id === "backgrounds" ? 12 : 20));
+                pageHistory.shift();
+            };
+            images.appendChild(previousClone);
+            var nextClone = next.cloneNode(true);
+            if(!next.disabled) nextClone.onclick = function() {
+                pagify(sprites, id, newOffset);
+                pageHistory.unshift(offset);
+            };
+            images.appendChild(nextClone);
+        } else {
+            next.nextElementSibling.remove();
+            next.remove();
+            previous.remove();
         }
     }
+    if(sprites.length === 2 && ["dark_cacao", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
+        var p = document.createElement("p");
+        p.innerHTML = translateText("(Sprites provided by <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>)");
+        images.appendChild(p);
+    }
+}
+
+// (Re)render the canvas
+function render() {
+    canvas.width = canvas.width;
+    ctx.beginPath();
+    ctx.rect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.beginPath();
+    ctx.lineWidth = "4";
+    ctx.strokeStyle = "black";
+    ctx.imageSmoothingQuality = "high";
+    comic.backgrounds.forEach(function(element) {
+        ctx.drawImage(element.img, element.x, element.y);
+    });
+    comic.sprites.forEach(function(element) {
+        if(element.flipped) {
+            ctx.save();
+            ctx.translate(element.x + element.width / 2, element.y + element.height / 2);
+            ctx.scale(-1, 1);
+            ctx.drawImage(element.img, -element.width / 2, -element.height / 2, element.width, element.height);
+            ctx.restore();
+        } else ctx.drawImage(element.img, element.x, element.y, element.width, element.height);
+    });
+    ctx.fillRect(0, 0, canvas.width, 6);
+    ctx.fillRect(0, 0, 6, canvas.height);
+    if(comic.selected !== null && comic.selected[0] < 0) {
+        if(comic.selected[0] === -3) ctx.strokeStyle = "#ccc";
+        else ctx.strokeStyle = "#ffd71e";
+    }
+    for(var i = 0; i < comic.rows; i++) for(var i2 = 0; i2 < comic.columns; i2++) {
+        ctx.rect(470 * i2 + 8, 336 * i + 8, 454, 320);
+        ctx.stroke();
+        ctx.fillRect(470 * i2 + 464, 336 * i + 6, 12, 336);
+        ctx.fillRect(470 * i2 + 6, 336 * i + 330, 464, 12);
+    }
+    if(comic.selected !== null && comic.selected[0] >= 0) {
+        ctx.beginPath();
+        ctx.strokeStyle = "#ffd71e";
+        ctx.rect(470 * comic.selected[1] + 8, 336 * comic.selected[0] + 8, 454, 320);
+        ctx.stroke();
+    } else if(comic.selected !== null && comic.selected[0] === -3) {
+        ctx.beginPath();
+        ctx.strokeStyle = "black";
+        ctx.rect(470 * comic.selected[1][1] + 8, 336 * comic.selected[1][0] + 8, 454, 320);
+        ctx.stroke();
+    }
+    ctx.fillRect(0, canvas.height - 48, canvas.width, 48);
+    ctx.font = "Bold 24px CookieRun, Open Sans, sans-serif";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "left";
+    if(comic.selected !== null && comic.selected[0] === -1) {
+        if(comic.selected[1].src.endsWith("/bg_none.png")) ctx.fillText(translateText("Select a background to delete"), 10, canvas.height - 20);
+        else ctx.fillText(translateText("Select a panel to place the background"), 10, canvas.height - 20);
+    } else if(comic.selected !== null && comic.selected[0] === -2) ctx.fillText(translateText("Select a panel to copy"), 10, canvas.height - 20);
+    else if(comic.selected !== null && comic.selected[0] === -3) ctx.fillText(translateText("Select a panel to paste over"), 10, canvas.height - 20);
+    else ctx.fillText(comic.title, 10, canvas.height - 20);
+}
+
+// Clear the selection and reset the "Copy Panel" button's text
+function resetCopy() {
+    comic.selected = null;
+    document.getElementById("copy-panel").textContent = translateText("Copy Panel");
 }
 
 // Turn controls on or off
@@ -306,6 +384,71 @@ function toggleControls(disabled) {
         if(disabled) element.setAttribute("disabled", "");
         else element.removeAttribute("disabled");
     });
+}
+
+// Translate text to the user's language
+function translateText(text) {
+    if(language === "en") return text;
+    if(language === "es") switch(text) {
+        case "Previous Page":
+            return "Anterior";
+        case "Next Page":
+            return "Siguiente";
+        case "(Sprites provided by <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>)":
+            return "(Los sprites se proporcionaron por <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">la wiki de Cookie Run: Kingdom</a>)";
+        case "Select a background to delete":
+            return "¿Qué fondo quieres borrar?";
+        case "Select a panel to place the background":
+            return "¿En qué viñeta colocarás este fondo?";
+        case "Select a panel to copy":
+            return "Selecciona una viñeta para copiar";
+        case "Select a panel to paste over":
+            return "Selecciona una viñeta para pegar encima";
+        case "Copy Panel":
+            return "Copiar Viñeta";
+        case "Game Locations":
+            return "Lugares del Juego";
+        case "Basic Backdrops":
+            return "Fondos Básicos";
+        case "Create":
+            return "Crear";
+        case "Cancel Copy":
+            return "Cancelar Copia";
+        case "Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic.":
+            return "Debido a las limitaciones de su explorador, el botón de descarga no funciona mientras corre este programa desde los archivos locales. En su lugar, haga clic derecho, o toque el comic con su dedo si se encuentra en teléfono móvil, y seleccione \"Guardar imágen como...\" para guardarlo.";
+    } else if(language === "ko") switch(text) {
+        case "Previous Page":
+            return "이전 페이지로 가기";
+        case "Next Page":
+            return "다음 페이지로 가기";
+        case "(Sprites provided by <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>)":
+            return "스프라이트는 <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>에서 제공했습니다.";
+        case "Select a background to delete":
+            return "삭제할 배경 선택";
+        case "Select a panel to place the background":
+            return "배경을 배치할 패널 선택";
+        case "Select a panel to copy":
+            return "복사할 패널 선택";
+        case "Select a panel to paste over":
+            return "교체할 패널 선택";
+        case "Copy Panel":
+            return "복사 패널";
+        case "OvenBreak/LINE":
+            return "오븐브레이크/Kakao";
+        case "Kingdom":
+            return "킹덤";
+        case "Game Locations":
+            return "게임 장소";
+        case "Basic Backdrops":
+            return "컬러 배경";
+        case "Create":
+            return "창조하다";
+        case "Cancel Copy":
+            return "복사 취소";
+        case "Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic.":
+            return "웹 브라우저 제한으로 인해 로컬 파일에서 이 웹 사이트를 실행하는 동안 다운로드 버튼이 작동하지 않습니다. 대신 만화를 마우스 오른쪽 버튼으로 클릭하거나 길게 누르고 \"이미지 다운로드를\"을 선택하여 만화를 저장합니다.";
+    }
+    return text;
 }
 
 // Define variables
@@ -325,12 +468,15 @@ if(window.innerWidth < 980) {
     document.getElementById("remove-row").disabled = false;
 }
 var language = document.documentElement.getAttribute("lang");
-var tab = "ovenbreak";
+var openTabs = ["ovenbreak", "ovenbreak", 0];
+var pageHistory = [];
 var holding = false;
 var startX, startY;
 var tail = null;
 var textboxRenderCount = 0;
-index.backgrounds.unshift("bg_none.png");
+index.backgrounds["game"].unshift("bg_none.png");
+index.backgrounds["basic"].unshift("bg_custom.png");
+if(document.body.className === "" && document.cookie.includes("theme=")) document.body.className = document.cookie.split("theme=")[1].split(";")[0];
 render();
 
 // Events
@@ -400,9 +546,7 @@ canvas.onmousedown = function(event) {
                             splices.forEach(function(splice, i) {
                                 comic.sprites.splice(splice - i, 1);
                             });
-                            if(language === "ko") document.getElementById("copy-panel").textContent = "컷 복사하기";
-                            else document.getElementById("copy-panel").textContent = "Copy Panel";
-                            comic.selected = null;
+                            resetCopy();
                         }
                     } else comic.selected = [i, i2];
                 }
@@ -410,7 +554,7 @@ canvas.onmousedown = function(event) {
         }
         render();
     }
-}
+};
 canvas.addEventListener("touchstart", canvas.onmousedown, {passive: true});
 
 // Handle dragging
@@ -434,7 +578,7 @@ document.onmousemove = document.ontouchmove = function(event) {
         });
         render();
     }
-}
+};
 
 // Handle mouse/finger release
 document.onmouseup = document.ontouchend = function() {
@@ -450,12 +594,12 @@ document.onmouseup = document.ontouchend = function() {
         if(comic.sprites[comic.sprites.length - 1].resized === -3) document.getElementById("decrease-size").disabled = true;
         else document.getElementById("decrease-size").disabled = false; 
     }
-}
+};
 
 // Cancel touch event to avoid weird canvas selection bug
 canvas.ontouchend = function(event) {
     event.preventDefault();
-}
+};
 
 // Handle tab clicks
 Array.prototype.forEach.call(document.getElementsByClassName("openable"), function(element) {
@@ -466,14 +610,25 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
         textCanvas.className = "none";
         if(this.className === "openable") {
             if(element.id === "cookys" || element.id === "props") {
-                if(element.id === "cookys") document.getElementById("tabs").className = "";
+                if(element.id === "cookys") {
+                    if(openTabs[2] !== 0) {
+                        openTabs[2] = 0;
+                        if(openTabs[0] !== openTabs[1]) {
+                            document.getElementById(openTabs[0]).className = "tab";
+                            document.getElementById(openTabs[1]).className = "tab unopened";
+                        }
+                        document.getElementById("ovenbreak").textContent = translateText("OvenBreak/LINE");
+                        document.getElementById("kingdom").textContent = translateText("Kingdom");
+                    }
+                    document.getElementById("tabs").className = "";
+                }
                 images.innerHTML = "";
-                var sprites = Object.entries(element.id === "cookys" ? (tab === "kingdom" ? indexKingdom.cookies : index.cookies) : index.props);
+                var sprites = Object.entries(element.id === "cookys" ? (openTabs[0] === "kingdom" ? indexKingdom.cookies : index.cookies) : index.props);
                 sprites.forEach(function(sprite) {
                     var img = document.createElement("img");
                     var subentries = Object.entries(sprite[1]);
                     if(element.id === "cookys") {
-                        if(tab === "kingdom") {
+                        if(openTabs[0] === "kingdom") {
                             img.src = "assets/img/heads/kingdom/" + sprite[0] + ".png";
                             img.className = "head-kingdom";
                         } else {
@@ -485,10 +640,24 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                         document.getElementById("tabs").className = "none";
                         document.getElementById("back").className = element.id;
                         pagify(sprite, element.id === "cookys" ? "cookies" : element.id);
-                    }
+                    };
                     images.appendChild(img);
                 });
-            } else pagify(element.id === "pets" ? index.pets : index.backgrounds, element.id);
+            } else {
+                if(element.id === "backgrounds") {
+                    if(openTabs[2] !== 1) {
+                        openTabs[2] = 1;
+                        if(openTabs[0] !== openTabs[1]) {
+                            document.getElementById(openTabs[0]).className = "tab unopened";
+                            document.getElementById(openTabs[1]).className = "tab";
+                        }
+                        document.getElementById("ovenbreak").textContent = translateText("Game Locations");
+                        document.getElementById("kingdom").textContent = translateText("Basic Backdrops");
+                    }
+                    document.getElementById("tabs").className = "";
+                }
+                pagify(element.id === "backgrounds" ? (openTabs[1] === "kingdom" ? index.backgrounds.basic : index.backgrounds.game) : index.pets, element.id);
+            }
             Array.prototype.forEach.call(document.getElementsByClassName("opened"), function(opened) {
                 opened.className = "openable";
             });
@@ -497,7 +666,7 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
             images.innerHTML = "";
             this.className = "openable";
         }
-    }
+    };
 });
 
 // Handle opening the text tab
@@ -523,8 +692,7 @@ document.getElementById("textboxes").onclick = function() {
         };
         images.appendChild(text);
         var button = document.createElement("button");
-        if(language === "ko") button.innerText = "만들기";
-        else button.innerText = "Create";
+        button.innerText = translateText("Create");
         button.id = "create";
         button.disabled = true;
         images.appendChild(button);
@@ -541,8 +709,8 @@ document.getElementById("textboxes").onclick = function() {
                 textCanvas.width = 0;
                 textCanvas.height = 0;
                 render();
-            }
-        }
+            };
+        };
         Array.prototype.forEach.call(document.getElementsByClassName("tail"), function(element) {
             element.onclick = function() {
                 if(this.className === "tail noblock") {
@@ -556,7 +724,7 @@ document.getElementById("textboxes").onclick = function() {
                     tail = null;
                 }
                 drawTextbox();
-            }
+            };
         });
         Array.prototype.forEach.call(document.getElementsByClassName("opened"), function(opened) {
             opened.className = "openable";
@@ -568,20 +736,20 @@ document.getElementById("textboxes").onclick = function() {
         textCanvas.className = "none";
         this.className = "openable";
     }
-}
+};
 
 // Handle title changes
 document.getElementById("title").oninput = function() {
     comic.title = this.value;
     render();
-}
+};
 
 // Handle flip button
 document.getElementById("flip").onclick = function() {
     if(comic.sprites[comic.sprites.length - 1].flipped) comic.sprites[comic.sprites.length - 1].flipped = false;
     else comic.sprites[comic.sprites.length - 1].flipped = true;
     render();
-}
+};
 
 // Handle upscale button
 document.getElementById("increase-size").onclick = function() {
@@ -595,7 +763,7 @@ document.getElementById("increase-size").onclick = function() {
     render();
     if(comic.sprites[comic.sprites.length - 1].resized === 3) this.disabled = true;
     else document.getElementById("decrease-size").disabled = false;
-}
+};
 
 // Handle downscale button
 document.getElementById("decrease-size").onclick = function() {
@@ -609,67 +777,61 @@ document.getElementById("decrease-size").onclick = function() {
     render();
     if(comic.sprites[comic.sprites.length - 1].resized === -3) this.disabled = true;
     else document.getElementById("increase-size").disabled = false;
-}
+};
 
 // Handle new row button
 document.getElementById("add-row").onclick = function() {
     comic.rows += 1;
     canvas.height += 336;
-    comic.selected = null;
+    resetCopy();
     render();
     if(comic.rows >= (mobile ? 4 : 5)) this.disabled = true;
     else document.getElementById("remove-row").disabled = false;
-}
+};
 
 // Handle delete row button
 document.getElementById("remove-row").onclick = function() {
     comic.rows -= 1;
     canvas.height -= 336;
-    comic.selected = null;
+    resetCopy();
     render();
     if(comic.rows === 1) this.disabled = true;
     else document.getElementById("add-row").disabled = false;
-}
+};
 
 // Handle new column button
 document.getElementById("add-column").onclick = function() {
     comic.columns += 1;
     canvas.width += 470;
-    comic.selected = null;
+    resetCopy();
     render();
     if(comic.columns >= (mobile ? 3 : 4)) this.disabled = true;
     else document.getElementById("remove-column").disabled = false;
-}
+};
 
 // Handle delete column button
 document.getElementById("remove-column").onclick = function() {
     comic.columns -= 1;
     canvas.width -= 470;
-    comic.selected = null;
+    resetCopy();
     render();
     if(comic.columns === 1) this.disabled = true;
     else document.getElementById("add-column").disabled = false;
-}
+};
 
 // Handle panel copy button
 document.getElementById("copy-panel").onclick = function() {
+    this.textContent = translateText("Cancel Copy");
     if(window.scrollY > canvas.offsetTop) canvas.scrollIntoView();
     if(comic.selected === null || comic.selected[0] === -1) comic.selected = [-2, 0];
     else if(comic.selected[0] >= 0) comic.selected = [-3, comic.selected];
-    else comic.selected = null;
-    if(comic.selected !== null) {
-        if(language === "ko") this.textContent = "복사 취소";
-        else this.textContent = "Cancel Copy";
-    } else {
-        if(language === "ko") this.textContent = "컷 복사하기";
-        else this.textContent = "Copy Panel";
-    }
+    else resetCopy();
     render();
-}
+};
 
 // Handle save image button
 document.getElementById("save-image").onclick = function() {
-    comic.selected = null;
+    resetCopy();
     render();
     if(comic.columns > 1 || comic.title === "") {
         ctx.font = "Bold 24px CookieRun, Open Sans, sans-serif";
@@ -686,27 +848,32 @@ document.getElementById("save-image").onclick = function() {
         else link.download = title + ".png";
         link.click();
     } catch(err) {
-        if(err.code === 18) {
-            if(language === "ko") alert("웹 브라우저 제한으로 인해 로컬 파일에서 이 웹 사이트를 실행하는 동안 다운로드 버튼이 작동하지 않습니다. 대신 만화를 마우스 오른쪽 버튼으로 클릭하거나 길게 누르고 \"이미지 다운로드를\"을 선택하여 만화를 저장합니다.");
-            else alert("Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic.");
-        }
+        if(err.code === 18) alert(translateText("Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic."));
         else alert(err);
     }
-}
+};
 
 // Handle game switch tabs
 document.getElementById("ovenbreak").onclick = document.getElementById("kingdom").onclick = function() {
-    if(tab === this.id) return;
-    document.getElementById(tab).className = "tab unopened";
-    tab = this.id;
+    if(openTabs[openTabs[2]] === this.id) return;
+    document.getElementById(openTabs[openTabs[2]]).className = "tab unopened";
+    openTabs[openTabs[2]] = this.id;
     this.className = "tab";
-    document.getElementById("cookys").className = "openable";
-    document.getElementById("cookys").click();
-}
+    document.getElementById(openTabs[2] === 0 ? "cookys" : "backgrounds").className = "openable";
+    document.getElementById(openTabs[2] === 0 ? "cookys" : "backgrounds").click();
+};
 
 // Handle back button
 document.getElementById("back").onclick = function() {
     document.getElementById(this.className).className = "openable";
     document.getElementById(this.className).click();
     this.className = "none";
-}
+};
+
+// Handle theme changer
+Array.prototype.forEach.call(document.getElementsByClassName("theme"), function(element) {
+    element.onclick = function() {
+        document.body.className = element.getAttribute("name");
+        document.cookie = "theme=" + element.getAttribute("name") + "; max-age=2592000; path=/";
+    };
+});

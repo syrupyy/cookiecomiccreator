@@ -38,7 +38,7 @@ else:
 """
 # Leaving this as an OvenBreak-format dict in case I add backgrounds later
 index["cookies"] = dict()
-banned_stands = ["Almond Cookie", "Black Raison Cookie", "Dark Choco Cookie", "Herb Cookie", "Parfait Cookie", "Red Velvet Cookie", "Rye Cookie"] # Duplicate or near-duplicate     poses
+banned_stands = ["Almond Cookie", "Black Raison Cookie", "Dark Choco Cookie", "Herb Cookie", "Parfait Cookie", "Red Velvet Cookie", "Rye Cookie"] # Duplicate or near-duplicate poses
 
 # Walk through and parse all files in folder
 for subdir, dirs, files in os.walk("."):
@@ -65,10 +65,14 @@ for subdir, dirs, files in os.walk("."):
                 factor = 4
             elif path == "Sonic Cookie/default.png" or path == "Tails Cookie/default.png":
                 factor = 2.5
-            elif im.size[1] > 400 or path == "NPCs/cakehound_default.png":
+            elif path.startswith("NPCs/dreggman"):
+                factor = 1.5
+            elif im.size[1] > 400 or path == "NPCs/cakehound_default.png" or path == "NPCs/sherbet_sick.png":
                 factor = 3
             elif path == "Hollyberry Cookie/stand.png":
                 factor = 2
+            elif path.startswith("NPCs/durian"):
+                factor = 1
             else:
                 factor = 1.5
             if subdir[2:] == "Adventurer Cookie":
@@ -99,8 +103,8 @@ for subdir, dirs, files in os.walk("."):
             if cookie not in index["cookies"]:
                 index["cookies"][cookie] = dict()
             index["cookies"][cookie][file] = dict()
-            index["cookies"][cookie][file]["width"] = im.size[0] / factor
-            index["cookies"][cookie][file]["height"] = im.size[1] / factor
+            index["cookies"][cookie][file]["width"] = round(im.size[0] / factor)
+            index["cookies"][cookie][file]["height"] = round(im.size[1] / factor)
             print(path)
 
 # Sort the index for ease of use

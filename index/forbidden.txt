@@ -27,7 +27,6 @@ bg_lobby_skin12.png
 bg_lobby_skin21.png
 bg_lobby_skin24.png
 bg_lobby_skin28.png
-bg_lobby_skin29.png
 ch10x2_0041.png
 ch21x2_0061.png
 ch22_ghostx2_0061.png
@@ -616,6 +615,9 @@ effect23_morejump_3.png
 effect23_morejump_4.png
 game_goldcandy_bling_01.png
 game_goldcandy_bling_02.png
+item12_star1_1.png
+item12_star2_1.png
+item12_star3_1.png
 jelly_bearpink_fly_01.png
 jelly_bearpink_fly_03.png
 jelly_bearyellow_fly_01.png
