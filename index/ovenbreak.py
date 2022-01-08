@@ -363,7 +363,7 @@ for subdir, dirs, files in os.walk("ccb"):
                 print(file)
 
 # Unpack gameplay sprites
-animations = ["bend", "crash", "exhausted", "extra 1", "extra 2", "extra 3", "extra 4", "extra 5", "extra 6", "extra slide", "fever end fall start", "fever start 1", "fever start 2", "fever start 4", "slide", "slide2", "transform end", "transform flight", "transform jump", "transform run", "transform start"]
+animations = ["bend", "crash", "exhausted", "extra 1", "extra 2", "extra 3", "extra 4", "extra 5", "extra 6", "extra slide", "fever end fall start", "fever start 1", "fever start 2", "fever start 3", "fever start 4", "slide", "slide2", "transform end", "transform flight", "transform jump", "transform run", "transform start"]
 large = ["cookie0051", "cookie0109", "cookie0112", "cookie0122", "cookie0140", "cookie0141", "cookie0142", "cookie0145", "cookie0150", "cookie0152", "cookie0154", "cookie0155", "cookie0158", "cookie0161", "cookie0163", "cookie0170", "cookie0179", "cookie0182", "cookie0187", "cookie0189", "cookie0190", "cookie0191", "cookie0517", "cookie0522"] # Some cookies' gameplay sprites are randomly really big compared to their shop sprites, so we adjust for that with this array
 small = ["cookie0049", "cookie0057", "cookie0064", "cookie0065", "cookie0070", "cookie0109", "cookie0125", "cookie0155", "cookie0158", "cookie0166", "cookie0178"] # And some cookies' sprites go over our height limit in weird, inconsisent ways that need to be excluded
 for subdir, dirs, files in os.walk("image/cookie/resources-common"):
@@ -378,7 +378,17 @@ for subdir, dirs, files in os.walk("image/cookie/resources-common"):
                 if key not in animations or len(animation["FrameList"]) == 0:
                     continue
                 cookie = file[0:10]
-                output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
+                if key == "fever start 3":
+                    if cookie in ["cookie0061", "cookie0066", "cookie0067", "cookie0068", "cookie0108", "cookie0112", "cookie0134", "cookie0140", "cookie0143", "cookie0154", "cookie0156", "cookie0161", "cookie0169", "cookie0171", "cookie0184", "cookie0185", "cookie0522"]:
+                        output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][2]])
+                    elif cookie in ["cookie0109", "cookie0137", "cookie0145", "cookie0182"]:
+                        output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
+                    elif cookie in ["cookie0151", "cookie0157"]:
+                        output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][3]])
+                    else:
+                        output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][1]])
+                else:
+                    output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
                 if output != None:
                     index["cookies"][cookie]["gameplay"][output] = dict()
                     if (size[1] > 292 and cookie not in small and (cookie != "cookie0067" or not output.endswith("_0091.png"))) or output == "cookie0071x2_0136.png" or output == "cookie0071x2_0138.png" or output == "cookie0071z01x2_0136.png" or output == "cookie0071x2_0138.png":
@@ -513,6 +523,7 @@ if os.path.exists("Patch"):
     intros = ["intro_epN04.png", "intro_epN05.png", "intro_epS01.png", "intro_epS02.png"]
     intro_suffixes = {"intro_epN04.png": "intro_epN04_back.png", "intro_epN05.png": "intro_epN05_bg.png", "intro_epS01.png": "intro_epS01_bg.png", "intro_epS02.png": "intro_epS02_1.png"}
     cookies = ["ch04", "ch05", "ch06", "ch10", "ch14", "ch21", "ch22"]
+    # TODO: Add Halloween costumes
     for subdir, dirs, files in os.walk("Patch"):
         for file in files:
             if forbidden and file in forbidden:
@@ -556,12 +567,15 @@ if os.path.exists("Patch"):
                 root = ElementTree.fromstring(open(path.replace(".png", "_2_aniinfo.plist"), "r").read())
                 plist_dict = tree_to_dict(root[0])
                 i = 0
-                animations = [1, 2, 4, 8]
+                animations = [1, 2, 3, 4, 8]
                 for animation in plist_dict["animationlist"]:
                     if len(animation["FrameList"]) == 0 or i not in animations:
                         i += 1
                         continue
-                    output, size = unpack_texture(path, "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
+                    if i == 3:
+                        output, size = unpack_texture(path, "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][1]])
+                    else:
+                        output, size = unpack_texture(path, "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
                     if output != None:
                         if cookie not in index["cookies"]:
                             index["cookies"][cookie] = dict()

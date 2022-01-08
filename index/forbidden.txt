@@ -304,6 +304,7 @@ cookie0128x2_0089.png
 cookie0128z01x2_0039.png
 cookie0128z01x2_0082.png
 cookie0128z01x2_0089.png
+cookie0129x2_0046.png
 cookie0130x2_0008.png
 cookie0130z01x2_0008.png
 cookie0131_shop_exhausted.png
