@@ -28,33 +28,53 @@
         <p>쿠키런 게임 속 캐릭터들로 만화를 만들어 친구들에게 보내주세요!</p>
         <noscript>이 사이트의 기능을 모두 활용하기 위해서는 자바스크립트를 활성화 시킬 필요가 있습니다.</noscript>
         <div class="creator">
+            <div class="column top-buttons">
+                <button id="import">가져 오기</button>
+                <button id="export">내보내기</button>
+                <button id="clear">지우다</button>
+            </div>
+            <div class="column top-buttons right">
+                <span id="share-output" class="none">
+                    <a id="share-link"></a>
+                    <a id="tweet-link" target="_blank"><button><span class="bird"></span>트윗하기</button></a>
+                    <a id="facebook-link" target="_blank"><button><span class="facebook"></span>공유</button></a>
+                    <a id="tumblr-link" target="_blank" class="none"><button><span class="tumblr"></span>출판하다</button></a>
+                </span>
+                <button id="share">공유</button>
+            </div><br>
             <span class="center">
                 <canvas id="comic" width="1410" height="384"></canvas>
             </span>
             <div class="creator-buttons flex">
-                <span>
+                <div class="left-buttons flex">
                     <button id="cookys" class="openable" title="쿠키 스프라이트"></button>
                     <button id="pets" class="openable" title="펫 스프라이트"></button>
                     <button id="props" class="openable" title="소품"></button>
                     <button id="textboxes" class="openable" title="텍스트 거품"></button>
-                    <button id="backgrounds" class="openable" title="배경"></button><br>
+                    <button id="backgrounds" class="openable" title="배경"></button>
                     <input id="title" type="text" placeholder="제목" maxlength="50">
-                </span>
+                    <input type="range" min="0" max="360" value="0" id="rotate" title="회전" disabled>
+                </div>
                 <div class="right-buttons">
                     <div id="controls" class="column">
-                        <button id="increase-size" class="noblock" disabled>+</button>
-                        <button id="decrease-size" class="noblock" disabled>-</button>
-                        <button id="flip" disabled>뒤집기</button>
-                    </div>
-                    <div class="column">
-                        <button id="add-row">행 추가</button>
-                        <button id="remove-row" disabled>행 삭제</button>
+                        <input type="range" min="0" max="100" value="50" id="resize" title="크기 조절하기" disabled>
+                        <button id="flip-image" disabled>뒤집기</button>
                     </div>
                     <div class="column thick">
                         <button id="add-column">열 추가</button>
                         <button id="remove-column">열 삭제</button>
                     </div>
-                    <div class="row"><button id="copy-panel">컷 복사하기</button><button id="save-image">이미지 다운로드</button></div><br>
+                    <div class="row">
+                        <div class="column">
+                            <button id="undo" disabled>실행 취소</button>
+                            <button id="redo" disabled>다시 시도</button>
+                        </div>
+                        <div class="column">
+                            <button id="add-row">행 추가</button>
+                            <button id="remove-row" disabled>행 삭제</button>
+                        </div>
+                        <button id="copy-panel">컷 하기 복사</button><button id="save-image">이미지 다운로드</button>
+                    </div><br>
                     <span id="tabs" class="none"><button class="tab" id="ovenbreak">오븐브레이크/Kakao</button><button class="tab unopened" id="kingdom">킹덤</button></span>
                     <button id="back" class="none">돌아가기</button>
                 </div>

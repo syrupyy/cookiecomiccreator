@@ -31,3 +31,5 @@ cutscene9028_02.png
 cutscence9029_02.png
 cutscence9029_04.png
 cutscene9033_09.png
+cutscene9036_05.png
+cutscene9036_07.png

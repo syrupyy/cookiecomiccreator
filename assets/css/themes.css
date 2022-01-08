@@ -11,7 +11,7 @@ body.kingdom button {
     border: 2px solid #0c1824;
     -webkit-text-stroke: 1px #1d1c1a;
 }
-body.kingdom button:active {
+body.kingdom button:active, body.kingdom input[type="range"]:disabled {
     background-color: #5575a8;
     border: 2px solid #182332;
 }
@@ -43,10 +43,14 @@ body.kingdom.dark button:disabled {
     background-color: #454e79;
     border: 2px solid #242e41;
 }
-body.kingdom.dark input[type="text"], body.kingdom.dark textarea {
+body.kingdom.dark input[type="text"], body.kingdom.dark input[type="range"], body.kingdom.dark textarea {
     color: #505050;
     background-color: #f3e9df;
     border: 2px solid #c7b5aa;
+}
+body.kingdom.dark input[type="range"]:disabled {
+    background-color: #242e41;
+    border: 2px solid #242e41;
 }
 body.kingdom.dark a {
     color: #94c7ff;
@@ -81,7 +85,7 @@ body.black button:active {
     background-color: #503010;
     border: 2px solid #261300;
 }
-body.black input[type="text"], body.black textarea {
+body.black input[type="text"], body.black input[type="range"], body.black textarea {
     color: #ccc;
     background-color: #181010;
     border: 2px solid #181010;

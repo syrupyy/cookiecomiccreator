@@ -54,6 +54,12 @@ ccb/cutscene9028/resources-phonehd/emmental_cry.png
 ccb/cutscene9028/resources-phonehd/emmental_standard.png
 ccb/cutscene9030/resources-phonehd/cakepopsz01_all.png
 ccb/cutscene9030/resources-phonehd/reporter_cookie_standard.png
+ccb/cutscene9036/resources-phonehd/cookie_employee_delivery_standard.png
+ccb/cutscene9036/resources-phonehd/cookie_employee_delivery_surprised.png
+ccb/cutscene9036/resources-phonehd/cookie_employee_officeman_standard.png
+ccb/cutscene9036/resources-phonehd/cookie_employee_officeman_surprised.png
+ccb/cutscene9036/resources-phonehd/cookie_employee_repairman_standard.png
+ccb/cutscene9036/resources-phonehd/cookie_employee_repairman_surprised.png
 ccb/cutscene300105/resources-phonehd/gnome_embarrassed.png
 ccb/cutscene300105/resources-phonehd/gnome_melt.png
 ccb/cutscene300105/resources-phonehd/gnome_standard.png

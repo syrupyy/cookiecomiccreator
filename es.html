@@ -24,36 +24,56 @@
     </head>
     <body>
         <h1>Cookie Comic Creator</h1>
-        <p>¡    Crea comics con tus personajes favoritos de la franquicia de Cookie Run, y envíaselos a tus amigos!</p>
+        <p>¡Crea comics con tus personajes favoritos de la franquicia de Cookie Run, y envíaselos a tus amigos!</p>
         <noscript>JavaScript debe de estar habilitado para usar este sitio.</noscript>
         <div class="creator">
+            <div class="column top-buttons">
+                <button id="import">Importar</button>
+                <button id="export">Exportar</button>
+                <button id="clear">Borrar</button>
+            </div>
+            <div class="column top-buttons right">
+                <span id="share-output" class="none">
+                    <a id="share-link"></a>
+                    <a id="tweet-link" target="_blank"><button><span class="twitter"></span>Twittear</button></a>
+                    <a id="facebook-link" target="_blank"><button><span class="facebook"></span>Compartir</button></a>
+                    <a id="tumblr-link" target="_blank"><button><span class="tumblr"></span>Publicar</button></a>
+                </span>
+                <button id="share">Compartir</button>
+            </div><br>
             <span class="center">
                 <canvas id="comic" width="1410" height="384"></canvas>
             </span>
             <div class="creator-buttons flex">
-                <span>
+                <div class="left-buttons flex">
                     <button id="cookys" class="openable" title="Galletas"></button>
                     <button id="pets" class="openable" title="Mascotas"></button>
                     <button id="props" class="openable" title="Accesorios, gomitas y tesoros"></button>
                     <button id="textboxes" class="openable" title="Globos de texto"></button>
-                    <button id="backgrounds" class="openable" title="Fondos"></button><br>
+                    <button id="backgrounds" class="openable" title="Fondos"></button>
                     <input id="title" type="text" placeholder="Nombre" maxlength="50">
-                </span>
+                    <input type="range" min="0" max="360" value="0" id="rotate" title="Girar" disabled>
+                </div>
                 <div class="right-buttons">
                     <div id="controls" class="column">
-                        <button id="increase-size" class="noblock" disabled>+</button>
-                        <button id="decrease-size" class="noblock" disabled>-</button>
-                        <button id="flip" disabled>Voltear</button>
+                        <input type="range" min="0" max="100" value="50" id="resize" title="Redimensionar" disabled>
+                        <button id="flip-image" disabled>Voltear</button>
                     </div>
                     <div class="column">
-                        <button id="add-row">+ Fila</button>
-                        <button id="remove-row" disabled>- Fila</button>
+                        <button id="undo" disabled>Deshacer</button>
+                        <button id="redo" disabled>Rehacer</button>
                     </div>
-                    <div class="column thick">
-                        <button id="add-column">+ Columna</button>
-                        <button id="remove-column">- Columna</button>
-                    </div>
-                    <div class="row"><button id="copy-panel">Copiar Viñeta</button><button id="save-image">Guardar Imágen</button></div><br>
+                    <div class="row">
+                        <div class="column">
+                            <button id="add-row">+ Fila</button>
+                            <button id="remove-row" disabled>- Fila</button>
+                        </div>
+                        <div class="column thick">
+                            <button id="add-column">+ Columna</button>
+                            <button id="remove-column">- Columna</button>
+                        </div>
+                        <button id="copy-panel">Copiar Viñeta</button><button id="save-image">Guardar Imágen</button>
+                    </div><br>
                     <span id="tabs" class="none"><button class="tab" id="ovenbreak">OvenBreak/LINE</button><button class="tab unopened" id="kingdom">Kingdom</button></span>
                     <button id="back" class="none">Regresar</button>
                 </div>

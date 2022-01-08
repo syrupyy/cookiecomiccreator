@@ -27,33 +27,53 @@
         <p>Create comics with Cookie Run game characters and send them to your friends!</p>
         <noscript>JavaScript must be enabled to use this website.</noscript>
         <div class="creator">
+            <div class="column top-buttons">
+                <button id="import">Import</button>
+                <button id="export">Export</button>
+                <button id="clear">Clear</button>
+            </div>
+            <div class="column top-buttons right">
+                <span id="share-output" class="none">
+                    <a id="share-link"></a>
+                    <a id="tweet-link" target="_blank"><button><span class="bird"></span>Tweet</button></a>
+                    <a id="facebook-link" target="_blank"><button><span class="facebook"></span>Share</button></a>
+                    <a id="tumblr-link" target="_blank"><button><span class="tumblr"></span>Post</button></a>
+                </span>
+                <button id="share">Share</button>
+            </div><br>
             <span class="center">
                 <canvas id="comic" width="1410" height="384"></canvas>
             </span>
             <div class="creator-buttons flex">
-                <span>
+                <div class="left-buttons flex">
                     <button id="cookys" class="openable" title="Cookie Sprites"></button>
                     <button id="pets" class="openable" title="Pet Sprites"></button>
                     <button id="props" class="openable" title="Props"></button>
                     <button id="textboxes" class="openable" title="Textboxes"></button>
-                    <button id="backgrounds" class="openable" title="Backgrounds"></button><br>
+                    <button id="backgrounds" class="openable" title="Backgrounds"></button>
                     <input id="title" type="text" placeholder="Name" maxlength="50">
-                </span>
+                    <input type="range" min="-180" max="180" value="0" id="rotate" title="Rotate" disabled>
+                </div>
                 <div class="right-buttons">
                     <div id="controls" class="column">
-                        <button id="increase-size" class="noblock" disabled>+</button>
-                        <button id="decrease-size" class="noblock" disabled>-</button>
-                        <button id="flip" disabled>Flip</button>
+                        <input type="range" min="0" max="100" value="50" id="resize" title="Resize" disabled>
+                        <button id="flip-image" disabled>Flip Image</button>
                     </div>
                     <div class="column">
-                        <button id="add-row">+ Row</button>
-                        <button id="remove-row" disabled>- Row</button>
+                        <button id="undo" disabled>Undo</button>
+                        <button id="redo" disabled>Redo</button>
                     </div>
-                    <div class="column thick">
-                        <button id="add-column">+ Column</button>
-                        <button id="remove-column">- Column</button>
-                    </div>
-                    <div class="row"><button id="copy-panel">Copy Panel</button><button id="save-image">Save Image</button></div><br>
+                    <div class="row">
+                        <div class="column">
+                            <button id="add-row">+ Row</button>
+                            <button id="remove-row" disabled>- Row</button>
+                        </div>
+                        <div class="column thick">
+                            <button id="add-column">+ Column</button>
+                            <button id="remove-column">- Column</button>
+                        </div>
+                        <button id="copy-panel">Copy Panel</button><button id="save-image">Save Image</button>
+                    </div><br>
                     <span id="tabs" class="none"><button class="tab" id="ovenbreak">OvenBreak/LINE</button><button class="tab unopened" id="kingdom">Kingdom</button></span>
                     <button id="back" class="none">Back</button>
                 </div>
@@ -73,7 +93,7 @@
         <script src="assets/index_kingdom.js"></script>
         <script src="assets/creator.js"></script>
         <p><a href="index.html">English</a> &bull; <a href="es.html">Español</a> &bull; <a href="ko.html">한국어</a></p>
-        <p>Share your creations on Twitter with <a href="https://twitter.com/hashtag/cookiecomiccreator">#cookiecomiccreator</a> or on Tumblr with <a href="https://www.tumblr.com/tagged/cookie%20comic%20creator">cookie comic creator</a>!<br>Or <a href="https://www.tiktok.com/tag/cookiecomiccreator">#cookiecomiccreator</a> on TikTok I guess why not</p>
+        <p>Share your creations with #cookiecomiccreator on <a href="https://twitter.com/hashtag/cookiecomiccreator">Twitter</a>, <a href="https://www.instagram.com/explore/tags/cookiecomiccreator/   ">Instagram</a> or <a href="https://www.tiktok.com/tag/cookiecomiccreator">TikTok</a>!<br>Tumblr: <a href="https://www.tumblr.com/tagged/cookie%20comic%20creator">#cookie comic creator</a></p>
         <p>Cookie Comic Creator is a fan project unaffiliated with Devsisters.<br><a href="https://game.devsisters.com/en/cookierun/">Please support them on the Cookie Run website!</a></p>
         <p>This site uses the CookieRun font by Devsisters. <a href="https://www.cookierunfont.com/static/download/License_ko_en.pdf" target="_blank">(license)</a></p>
         <p>made by syrupyy &#129412; <a href="https://syrupyy.tumblr.com/">tumblr</a><br>if you have any suggestions/find a bug, message me or send an ask!<br><a href="https://twitter.com/syrupyy_pluto">twitter: @syrupyy_pluto</a> &bull; <a href="https://github.com/syrupyy/cookiecomiccreator">github (mit license)</a></p>

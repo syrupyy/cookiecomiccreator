@@ -67,8 +67,10 @@ for subdir, dirs, files in os.walk("."):
                 factor = 2.5
             elif path.startswith("NPCs/dreggman"):
                 factor = 1.5
-            elif im.size[1] > 400 or path == "NPCs/cakehound_default.png" or path == "NPCs/sherbet_sick.png":
-                factor = 3
+            elif im.size[1] > 500 or path == "NPCs/cakehound_default.png":
+                factor = 2.75
+            elif im.size[1] > 400 or path == "NPCs/sherbet_sick.png":
+                factor = 2.5
             elif path == "Hollyberry Cookie/stand.png":
                 factor = 2
             elif path.startswith("NPCs/durian"):
