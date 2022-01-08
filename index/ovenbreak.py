@@ -281,7 +281,7 @@ for subdir, dirs, files in os.walk("ccb"):
             index["cookies"][cookie]["gameplay"][shop]["height"] = round(size[1] * 0.875)
         elif state.match(path):
             cookie = file[0:10]
-            if path != "ccb/resources-phonehd/cookie0057_state.png" and path != "ccb/resources-phonehd/cookie0065z02_state.png":
+            if path != "ccb/resources-phonehd/cookie0057_state.png" and path != "ccb/resources-phonehd/cookie0065z01_state.png" and path != "ccb/resources-phonehd/cookie0065z02_state.png":
                 happy, size = unpack_texture(path, "img/cookies/" + cookie + "/", "_happy_ani00.png")
                 if happy != None:
                     if cookie not in index["cookies"]:
@@ -479,7 +479,7 @@ index["props"]["jelly"][output] = dict()
 index["props"]["jelly"][output]["width"] = size[0]
 index["props"]["jelly"][output]["height"] = size[1]
 unpack_texture("image/jelly/resources-phonehd/playing_jelly.png", "img/props/jelly/", "_1.png")
-bonustime = ["m2", "b0", "c", "i2", "e0", "f", "g", "b2", "i0", "j", "k", "o1", "m0", "n0", "o0", "n2", "q", "r", "s0", "t0", "u0", "u1", "w", "x", "t1", "z", "e1", "n1", "u2", "o2", "e2"]
+bonustime = ["m2", "b0", "c", "i2", "e0", "f", "g", "b2", "i0", "j", "k", "o1", "m0", "n0", "o0", "n2", "q", "r", "s0", "t0", "u0", "u1", "w", "x", "t1", "z", "e1", "o2", "n1", "u2", "e2"]
 for letter in bonustime:
     output, size = unpack_texture("image/jelly/resources-phonehd/fever_jelly.png", "img/props/jelly/", "_" + letter + ".png")
     index["props"]["jelly"][output] = dict()
@@ -587,7 +587,7 @@ if os.path.exists("Patch"):
                     if file not in index["backgrounds"]["game"]:
                         index["backgrounds"]["game"].append(output)
                     print(output)
-    pets = ["pet03", "pet04", "pet05", "pet07", "pet08", "pet09", "pet10", "pet14", "pet19", "pet27", "pet29", "pet30", "pet39", "pet43", "pet44", "pet49", "pet57", "pet62", "pet65", "pet68", "pet901", "pet902"]
+    pets = ["pet03", "pet04", "pet05", "pet07", "pet08", "pet09", "pet10", "pet14", "pet19", "pet27", "pet29", "pet30", "pet32", "pet39", "pet43", "pet44", "pet49", "pet57", "pet62", "pet65", "pet68", "pet901", "pet902"]
     root = ElementTree.fromstring(open("Patch/kakaoBC_HD/shop_item_pet.plist", "r").read())
     plist_dict = tree_to_dict(root[0])
     for key in plist_dict["frames"].keys():

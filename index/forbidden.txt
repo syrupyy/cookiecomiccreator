@@ -218,7 +218,6 @@ cookie0063z04_umbrellax2_0040.png
 cookie0063z04_umbrellax2_0041.png
 cookie0063z04_umbrellax2_0046.png
 cookie0064_z01x2_aniinfo.plist
-cookie0065z01_state_happy_ani00.png
 cookie0066_stand.png
 cookie0066x2_0061.png
 cookie0067x2_0007.png
@@ -670,6 +669,8 @@ play_restart2_2.png
 play_restart2_3.png
 tr_ch17.png
 tr_pet22.png
+tr_pet55.png
+tr_pet55_m.png
 tr_upgrade_line_reducer.png
 training0064_tm001_effect21_touchtouch_01.png
 training0064_tm001_effect21_touchtouch_02.png
