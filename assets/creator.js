@@ -405,7 +405,7 @@ function render() {
             cc.ctx.save();
             cc.ctx.translate(element.x + element.width / 2, element.y + element.height / 2);
             if(element.flipped) cc.ctx.scale(-1, 1);
-            if(element.rotated !== 0) cc.ctx.rotate(-element.rotated * Math.PI / 180);
+            if(element.rotated !== 0) cc.ctx.rotate((element.flipped ? element.rotated : -element.rotated) * Math.PI / 180);
             cc.ctx.drawImage(element.img, -element.width / 2, -element.height / 2, element.width, element.height);
             cc.ctx.restore();
         } else cc.ctx.drawImage(element.img, element.x, element.y, element.width, element.height);
