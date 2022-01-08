@@ -826,6 +826,7 @@ document.getElementById("textboxes").onclick = function() {
                 cc.textCanvas.height = 0;
                 render();
                 makeUndoPoint();
+                if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
             };
         };
         Array.prototype.forEach.call(document.getElementsByClassName("tail"), function(element) {
