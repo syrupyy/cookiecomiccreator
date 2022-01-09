@@ -949,6 +949,8 @@ document.getElementById("clear").onclick = function() {
 document.getElementById("share").onclick = function() {
     this.disabled = true;
     this.textContent = translateText("Uploading...");
+    resetCopy();
+    render();
     if(cc.comic.columns > 1 || cc.comic.title === "") {
         cc.ctx.font = "Bold 24px CookieRun, Open Sans, sans-serif";
         cc.ctx.fillStyle = "black";
