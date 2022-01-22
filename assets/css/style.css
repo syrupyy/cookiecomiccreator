@@ -54,12 +54,11 @@ textarea {
     width: calc(100% - 84px);
     height: 40px;
     padding: 8px;
-    margin-right: 4px;
     border: 2px solid #ccc;
     border-radius: 10px;
     resize: none;
 }
-input:focus {
+textarea:focus, input:focus, select:focus {
     outline: none;
 }
 input[type="text"] {
@@ -117,6 +116,20 @@ input[type="range"]:disabled::-moz-range-thumb {
     background: initial;
     cursor: not-allowed;
 }
+select {
+    width: 144px;
+    height: 36px;
+    padding: 4px;
+    margin: 4px 4px 4px 0;
+    border: 2px solid #954e00;
+    border-radius: 10px;
+    background-color: #ffd71e;
+    color: #fff;
+    -webkit-text-stroke: 1px #954e00;
+}
+option {
+    color: #954e00;
+}
 
 ::-webkit-scrollbar {
     display: none;
@@ -137,6 +150,15 @@ input[type="range"]:disabled::-moz-range-thumb {
     width: 100%;
     display: inline-block;
     text-align: center;
+}
+.share-icon {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    position: relative;
+    top: 2px;
+    background: transparent 0 0 no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg%20fill%3D%22%23fff%22%20viewBox%3D%220%200%2024%2024%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M0%200h24v24H0V0z%22%20fill%3D%22none%22%2F%3E%3Cpath%20style%3D%22paint-order%3Astroke%3Bstroke%3A%23954e00%3Bstroke-width%3A3px%22%20d%3D%22m%2018%2C16.08%20c%20-0.76%2C0%20-1.44%2C0.3%20-1.96%2C0.77%20L%208.91%2C12.7%20C%208.96%2C12.47%209%2C12.24%209%2C12%209%2C11.76%208.96%2C11.53%208.91%2C11.3%20L%2015.96%2C7.19%20C%2016.5%2C7.69%2017.21%2C8%2018%2C8%2019.66%2C8%2021%2C6.66%2021%2C5%2021%2C3.34%2019.66%2C2%2018%2C2%20c%20-1.66%2C0%20-3%2C1.34%20-3%2C3%200%2C0.24%200.04%2C0.47%200.09%2C0.7%20L%208.04%2C9.81%20C%207.5%2C9.31%206.79%2C9%206%2C9%204.34%2C9%203%2C10.34%203%2C12%20c%200%2C1.66%201.34%2C3%203%2C3%200.79%2C0%201.5%2C-0.31%202.04%2C-0.81%20l%207.12%2C4.16%20c%20-0.05%2C0.21%20-0.08%2C0.43%20-0.08%2C0.65%200%2C1.61%201.31%2C2.92%202.92%2C2.92%201.61%2C0%202.92%2C-1.31%202.92%2C-2.92%200%2C-1.61%20-1.31%2C-2.92%20-2.92%2C-2.92%20z%22%2F%3E%3C%2Fsvg%3E");
 }
 .opened {
     border: 2px solid #fff;
@@ -206,6 +228,12 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .none {
     display: none !important;
+}
+.custom-background {
+    width: 100%;
+    max-width: 224px;
+    height: 36px;
+    margin-bottom: 8px;
 }
 .theme-selector-container {
     margin-top: 8px;
@@ -307,7 +335,6 @@ ins.adsbygoogle {
 #comic {
     margin-top: 4px;
     border-radius: 5px;
-    touch-action: none;
 }
 #cookys {
     background-image: url("../img/heads/cookie0001_head.png");
@@ -366,6 +393,24 @@ html[lang="es"] #copy-panel, html[lang="es"] #save-image {
     width: calc(100% - 4px);
     height: 36px;
 }
+#options {
+    display: block;
+    text-align: right;
+}
+#options button {
+    width: 144px;
+    height: 36px;
+    margin: 4px;
+}
+#custom {
+    float: left;
+}
+#search {
+    margin-bottom: 4px;
+}
+#search, #sort {
+    max-width: 320px;
+}
 #images {
     text-align: center;
 }
@@ -418,7 +463,7 @@ html[lang="es"] #copy-panel, html[lang="es"] #save-image {
         width: 105px;
     }
 }
-@media screen and (max-width: 896px) {
+@media screen and (max-width: 900px) {
     #controls {
         width: 105px;
     }
@@ -430,6 +475,12 @@ html[lang="es"] #copy-panel, html[lang="es"] #save-image {
     html[lang="es"] #controls {
         width: 206px;
     }
+    html[lang="es"] #options button {
+        width: calc(100% - 4px);
+    }
+    html[lang="es"] #search {
+        max-width: calc(100% - 172px);
+    }
 }
 @media screen and (max-width: 808px) {
     html[lang="ko"] .creator-buttons .right-buttons {
@@ -438,6 +489,12 @@ html[lang="es"] #copy-panel, html[lang="es"] #save-image {
     html[lang="ko"] #controls {
         width: 206px;
     }
+    html[lang="ko"] #options button {
+        width: calc(100% - 4px);
+    }
+    html[lang="ko"] #search {
+        max-width: calc(100% - 172px);
+    }
 }
 @media screen and (max-width: 799px) {
     .creator-buttons .right-buttons {
@@ -445,6 +502,12 @@ html[lang="es"] #copy-panel, html[lang="es"] #save-image {
     }
     #controls {
         width: 206px;
+    }
+    #options button {
+        width: calc(100% - 4px);
+    }
+    #search {
+        max-width: calc(100% - 172px);
     }
 }
 @media screen and (max-width: 640px) {
@@ -486,5 +549,17 @@ html[lang="es"] #copy-panel, html[lang="es"] #save-image {
 @media screen and (max-width: 380px) {
     #back {
         margin-top: 4px;
+    }
+}
+
+/* @firefox users: you are now more powerful than my entire family */
+@-moz-document url-prefix() {
+    .right-buttons button.tab {
+        width: 143px;
+    }
+    @media screen and (max-width: 581px) {
+        .right-buttons button.tab {
+            width: calc(50% - 2px);
+        }
     }
 }

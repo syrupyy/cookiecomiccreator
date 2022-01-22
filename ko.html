@@ -36,9 +36,10 @@
             <div class="column top-buttons right">
                 <span id="share-output" class="none">
                     <a id="share-link"></a>
-                    <a id="tweet-link" target="_blank"><button><span class="bird"></span>트윗하기</button></a>
+                    <a id="tweet-link" target="_blank"><button><span class="twitter"></span>트윗하기</button></a>
                     <a id="facebook-link" target="_blank"><button><span class="facebook"></span>공유</button></a>
                     <a id="tumblr-link" target="_blank" class="none"><button><span class="tumblr"></span>출판하다</button></a>
+                    <button id="share-external"><span class="share-icon"></span></button>
                 </span>
                 <button id="share">공유</button>
             </div><br>
@@ -79,6 +80,18 @@
                     <button id="back" class="none">돌아가기</button>
                 </div>
             </div>
+            <div id="options" class="none">
+                <button id="custom">+ 커스텀 스프라이트</button>
+                <style id="search-style"></style>
+                <select id="sort">
+                    <option selected disabled hidden value="recent">정렬</option>
+                    <option value="a-z">영어 알파벳순</option>
+                    <option value="z-a">역 영어 알파벳순</option>
+                    <option value="release" id="release">역순으로</option>
+                    <option value="release-new" id="release-new">역순</option>
+                    <option value="recent">최근 사용</option>
+                </select><input id="search" type="text" placeholder="검색">
+            </div>
             <div id="images"></div>
             <canvas id="text" class="none" width="0" height="0"></canvas>
         </div>
@@ -91,7 +104,6 @@
             </span>
         </div>
         <script src="assets/index.js"></script>
-        <script src="assets/index_kingdom.js"></script>
         <script src="assets/creator.js"></script>
         <p><a href="index.html">English</a> &bull; <a href="es.html">Español</a> &bull; <a href="ko.html">한국어</a></p>
         <p>Cookie Comic Creator는 Devsisters가 만들지 않은 팬 프로젝트입니다.<br><a href="https://game.devsisters.com/en/cookierun/">게임을 다운로드 해서 데브시스터즈(Devsisters)를 도와주세요!</a></p>

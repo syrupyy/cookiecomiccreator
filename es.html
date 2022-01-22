@@ -38,6 +38,7 @@
                     <a id="tweet-link" target="_blank"><button><span class="twitter"></span>Twittear</button></a>
                     <a id="facebook-link" target="_blank"><button><span class="facebook"></span>Compartir</button></a>
                     <a id="tumblr-link" target="_blank"><button><span class="tumblr"></span>Publicar</button></a>
+                    <button id="share-external"><span class="share-icon"></span></button>
                 </span>
                 <button id="share">Compartir</button>
             </div><br>
@@ -78,6 +79,18 @@
                     <button id="back" class="none">Regresar</button>
                 </div>
             </div>
+            <div id="options" class="none">
+                <button id="custom">+ Añadir Sprite</button>
+                <style id="search-style"></style>
+                <select id="sort">
+                    <option selected disabled hidden value="recent">Ordenar</option>
+                    <option value="a-z">A-Z</option>
+                    <option value="z-a">Z-A</option>
+                    <option value="release" id="release">Más antiguo</option>
+                    <option value="release-new" id="release-new">Más recientes</option>
+                    <option value="recent">Último utilizado</option>
+                </select><input id="search" type="text" placeholder="Buscar (nombres en inglés)">
+            </div>
             <div id="images"></div>
             <canvas id="text" class="none" width="0" height="0"></canvas>
         </div>
@@ -90,7 +103,6 @@
             </span>
         </div>
         <script src="assets/index.js"></script>
-        <script src="assets/index_kingdom.js"></script>
         <script src="assets/creator.js"></script>
         <p><a href="index.html">English</a> &bull; <a href="es.html">Español</a> &bull; <a href="ko.html">한국어</a></p>
         <p>"Cookie Comic Creator" es un proyecto fan. No se encuentra afiliado con la compañia Devsisters.<br><a href="https://game.devsisters.com/en/cookierun/">¡Por favor, apoyenlos en la página oficial de Cookie Run!</a></p>

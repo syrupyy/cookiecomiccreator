@@ -35,9 +35,10 @@
             <div class="column top-buttons right">
                 <span id="share-output" class="none">
                     <a id="share-link"></a>
-                    <a id="tweet-link" target="_blank"><button><span class="bird"></span>Tweet</button></a>
+                    <a id="tweet-link" target="_blank"><button><span class="twitter"></span>Tweet</button></a>
                     <a id="facebook-link" target="_blank"><button><span class="facebook"></span>Share</button></a>
                     <a id="tumblr-link" target="_blank"><button><span class="tumblr"></span>Post</button></a>
+                    <button id="share-external"><span class="share-icon"></span></button>
                 </span>
                 <button id="share">Share</button>
             </div><br>
@@ -78,6 +79,18 @@
                     <button id="back" class="none">Back</button>
                 </div>
             </div>
+            <div id="options" class="none">
+                <button id="custom">+ Custom Sprite</button>
+                <style id="search-style"></style>
+                <select id="sort">
+                    <option selected disabled hidden value="recent">Sort</option>
+                    <option value="a-z">A-Z</option>
+                    <option value="z-a">Z-A</option>
+                    <option value="release" id="release">Release</option>
+                    <option value="release-new" id="release-new">Release (new)</option>
+                    <option value="recent">Recently used</option>
+                </select><input id="search" type="text" placeholder="Search">
+            </div>
             <div id="images"></div>
             <canvas id="text" class="none" width="0" height="0"></canvas>
         </div>
@@ -90,7 +103,6 @@
             </span>
         </div>
         <script src="assets/index.js"></script>
-        <script src="assets/index_kingdom.js"></script>
         <script src="assets/creator.js"></script>
         <p><a href="index.html">English</a> &bull; <a href="es.html">Español</a> &bull; <a href="ko.html">한국어</a></p>
         <p>Share your creations with #cookiecomiccreator on <a href="https://twitter.com/hashtag/cookiecomiccreator">Twitter</a>, <a href="https://www.instagram.com/explore/tags/cookiecomiccreator/   ">Instagram</a> or <a href="https://www.tiktok.com/tag/cookiecomiccreator">TikTok</a>!<br>Tumblr: <a href="https://www.tumblr.com/tagged/cookie%20comic%20creator">#cookie comic creator</a></p>

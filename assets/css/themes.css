@@ -6,7 +6,7 @@ body.kingdom {
     background-attachment: fixed;
     background-position: center;
 }
-body.kingdom button {
+body.kingdom button, body.kingdom select {
     background-color: #659dd7;
     border: 2px solid #0c1824;
     -webkit-text-stroke: 1px #1d1c1a;
@@ -18,6 +18,9 @@ body.kingdom button:active, body.kingdom input[type="range"]:disabled {
 body.kingdom button:disabled {
     background-color: #acc3db;
     border: 2px solid #696667;
+}
+body.kingdom option {
+    color: #0c1824;
 }
 body.kingdom .creator, body.kingdom .theme-selector {
     background-color: #f3e9df;
@@ -72,7 +75,7 @@ body.black {
     background-color: #000;
     color: #ccc;
 }
-body.black button {
+body.black button, body.black select {
     background-color: #754a20;
     border: 2px solid #2e1b00;
     -webkit-text-stroke: 1px #2e1b00;
@@ -89,6 +92,9 @@ body.black input[type="text"], body.black input[type="range"], body.black textar
     color: #ccc;
     background-color: #181010;
     border: 2px solid #181010;
+}
+body.black option {
+    color: #2e1b00;
 }
 body.black .right-buttons button.tab.unopened {
     background-color: #503820;
