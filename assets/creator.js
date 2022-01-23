@@ -819,7 +819,7 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                 }
                 cc.images.innerHTML = "";
                 var sprites = Object.entries(element.id === "cookys" ? index["cookies"][cc.openTabs[0]] : index.props);
-                switch(document.getElementById("sort").value) {
+                if(element.id === "cookys") switch(document.getElementById("sort").value) {
                     case "release-new":
                         if(cc.openTabs[0] === "ovenbreak") {
                             sprites.reverse();
