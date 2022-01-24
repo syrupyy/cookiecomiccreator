@@ -420,7 +420,7 @@ function render() {
             var centerY = sprite.y + sprite.height / 2;
             var differenceX = centerX - ix;
             var differenceY = centerY - iy;
-            if((differenceX >= 0 || i === 0) && (differenceX <= 470 || i === cc.comic.columns - 1) && (differenceY >= 0 || i2 === 0) && (differenceY <= 336 || i2 === cc.comic.rows - 1)) {
+            if((differenceX >= -8 || i === 0) && (differenceX <= 462 || i === cc.comic.columns - 1) && (differenceY >= -8 || i2 === 0) && (differenceY <= 328 || i2 === cc.comic.rows - 1)) {
                 if(sprite.flipped || sprite.rotated !== 0) {
                     ctx.save();
                     ctx.translate(differenceX, differenceY);
