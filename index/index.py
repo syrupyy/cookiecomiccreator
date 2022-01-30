@@ -786,21 +786,21 @@ for subdir, dirs, files in os.walk("kingdom"):
             im = Image.open(path)
             if im.size[1] > 1300:
                 factor = 6.5
-            elif im.size[1] > 1000:
+            elif im.size[1] > 1000 or path == "kingdom/Pure Vanilla Cookie/hoodless.png":
                 factor = 5.5
-            elif path == "NPCs/cakehound_crowned.png":
+            elif path == "kingdom/NPCs/cakehound_crowned.png":
                 factor = 4
-            elif path == "Sonic Cookie/default.png" or path == "Tails Cookie/default.png":
+            elif path == "kingdom/Sonic Cookie/default.png" or path == "kingdom/Tails Cookie/default.png":
                 factor = 2.5
-            elif path.startswith("NPCs/dreggman"):
+            elif path.startswith("kingdom/NPCs/dreggman"):
                 factor = 1.5
-            elif im.size[1] > 500 or path == "NPCs/cakehound_default.png":
+            elif im.size[1] > 500 or path == "kingdom/NPCs/cakehound_default.png":
                 factor = 2.75
-            elif im.size[1] > 400 or path == "NPCs/sherbet_sick.png":
+            elif im.size[1] > 400 or path == "kingdom/NPCs/sherbet_sick.png":
                 factor = 2.5
-            elif path == "Hollyberry Cookie/stand.png":
+            elif path == "kingdom/Hollyberry Cookie/stand.png":
                 factor = 2
-            elif path.startswith("NPCs/durian"):
+            elif path.startswith("kingdom/NPCs/durian"):
                 factor = 1
             else:
                 factor = 1.5
