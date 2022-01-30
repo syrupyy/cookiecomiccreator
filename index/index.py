@@ -329,7 +329,7 @@ for subdir, dirs, files in os.walk("ccb"):
                 sad, size = unpack_texture(path, "img/cookies/" + cookie + "/", "_san_ani00.png")
             elif path == "ccb/resources-phonehd/cookie0043_state.png":
                 sad, size = unpack_texture(path, "img/cookies/" + cookie + "/", "_ani00.png")
-            elif path == "ccb/resources-phonehd/cookie0038z01_state.png" or path == "ccb/resources-phonehd/cookie0056z01_state.png" or path == "ccb/resources-phonehd/cookie0144_state.png" or path == "ccb/resources-phonehd/cookie0144z01_state.png": # Duplicate poses
+            elif path == "ccb/resources-phonehd/cookie0038z01_state.png" or path == "ccb/resources-phonehd/cookie0056z01_state.png" or path == "ccb/resources-phonehd/cookie0144_state.png" or path == "ccb/resources-phonehd/cookie0144z01_state.png" or path == "ccb/resources-phonehd/cookie0144z02_state.png": # Duplicate poses
                 continue
             else:
                 sad, size = unpack_texture(path, "img/cookies/" + cookie + "/", "_sad_ani00.png")

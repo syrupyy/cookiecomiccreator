@@ -272,6 +272,9 @@ cookie0116z01x2_0107.png
 cookie0121x2_0042.png
 cookie0121x2_0061.png
 cookie0121x2_0090.png
+cookie0121z01x2_0042.png
+cookie0121z01x2_0061.png
+cookie0121z01x2_0090.png
 cookie0122x2_0061.png
 cookie0122z01x2_0061.png
 cookie0123x2_0100.png
@@ -362,11 +365,14 @@ cookie0143z02x2_0046.png
 cookie0143z02x2_0059.png
 cookie0144_extrax2_0001.png
 cookie0144z01_extrax2_0001.png
+cookie0144z02_extrax2_0001.png
 cookie0145_roketx2_0001.png
 cookie0145_roketx2_0034.png
 cookie0145x2_0082.png
 cookie0145z01_roketx2_0034.png
 cookie0145z01x2_0082.png
+cookie0145z02_roketx2_0034.png
+cookie0145z02x2_0082.png
 cookie0146x2_0095.png
 cookie0146z01x2_0046.png
 cookie0146z01x2_0095.png
@@ -464,6 +470,8 @@ cookie0189x2_0040.png
 cookie0189x2_0041.png
 cookie0190x2_0082.png
 cookie0190z01x2_0082.png
+cookie0194x2_aniinfo.plist
+cookie0194_extrax2_aniinfo.plist
 cookie0503x2_0096.png
 cookie0503z01x2_0096.png
 cookie0522_secondx2_0001.png
@@ -641,6 +649,7 @@ jelly_specialBonus_01.png
 jelly_specialBonus_02.png
 jelly_specialBonus_03.png
 jelly_specialBonus_05.png
+jellybean_c0194.png
 loadingBgMemory.png
 ov_game_eff_bl_0.png
 ov_game_eff_bl_1.png
