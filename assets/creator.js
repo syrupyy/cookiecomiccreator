@@ -607,7 +607,7 @@ function translateText(text) {
         case "Secret sort":
             return "비밀 정렬";
         case "Create":
-            return "창조하다";
+            return "만들기";
         case "+ Custom Background":
             return "+ 사용자 정의 배경";
         case "Could not import your comic. Is it in the right format?":
