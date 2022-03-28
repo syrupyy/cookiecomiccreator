@@ -37,9 +37,11 @@ cookie0001z02x2_0093.png
 cookie0001z03x2_0093.png
 cookie0001z04x2_0093.png
 cookie0001z07x2_0093.png
+cookie0002_duelWin.png
 cookie0002x2_0008.png
 cookie0002z01x2_0008.png
 cookie0002z02x2_0008.png
+cookie0003__surprised.png
 cookie0003z02_duelLoading.png
 cookie0003z02_duelWin.png
 cookie0003z02_shop_exhausted.png
@@ -55,9 +57,14 @@ cookie0012z01x2_0046.png
 cookie0012z02x2_0028.png
 cookie0012z03x2_0023.png
 cookie0015x2_0041.png
+cookie0015x2_0109.png
 cookie0015z01x2_0041.png
+cookie0015z01x2_0109.png
 cookie0015z02x2_0041.png
+cookie0015z02x2_0109.png
 cookie0015z03x2_0041.png
+cookie0015z03x2_0109.png
+cookie0015z04x2_0109.png
 cookie0016_ghostx2_0041.png
 cookie0016x2_0041.png
 cookie0016z01_ghostx2_0041.png
@@ -108,7 +115,6 @@ cookie0037x2_0041.png
 cookie0037x2_0046.png
 cookie0037z01_shop_exhausted.png
 cookie0038x2_0041.png
-cookie0038z01_stand.png
 cookie0040_lancex2_0007.png
 cookie0040z01_lancex2_0007.png
 cookie0040z02_lancex2_0007.png
@@ -217,6 +223,7 @@ cookie0063z04_duelWin.png
 cookie0063z04_umbrellax2_0040.png
 cookie0063z04_umbrellax2_0041.png
 cookie0063z04_umbrellax2_0046.png
+cookie0064_dino_z01x2_aniinfo.plist
 cookie0064_z01x2_aniinfo.plist
 cookie0066_stand.png
 cookie0066x2_0061.png
@@ -251,6 +258,7 @@ cookie0103z02_swordx2_0035.png
 cookie0104_duelWin.png
 cookie0104z01_duelWin.png
 cookie0104z02_duelWin.png
+cookie0105_duelWin.png
 cookie0107_duelLoading.png
 cookie0107_duelWin.png
 cookie0107x2_0123.png

@@ -11,6 +11,7 @@ import math
 import os
 import PIL
 import re
+import statistics
 import sys
 
 # Compute the colors of a gradient
@@ -64,7 +65,7 @@ def trim(im):
     if bbox:
         return im.crop(bbox)
 
-# Define texture unpacking function (heavily modified from https://github.com/onepill/texture_unpacker_scirpt)
+# Define cocos2d-x texture unpacking function (heavily modified from https://github.com/onepill/texture_unpacker_scirpt)
 def unpack_texture(file, path, suffix):
     im = Image.open(file)
     root = ElementTree.fromstring(open(file.replace(".png", ".plist"), "r").read())
@@ -77,6 +78,7 @@ def unpack_texture(file, path, suffix):
             if(plist_dict["metadata"]["format"] == 3):
                 frame["frame"] = frame["textureRect"]
                 frame["rotated"] = frame["textureRotated"]
+                frame["sourceSize"] = frame["spriteSourceSize"]
             rectlist = frame["frame"].replace("{", "").replace("}", "").split(",")
             width = int(float(rectlist[3] if frame["rotated"] else rectlist[2]))
             height = int(float(rectlist[2] if frame["rotated"] else rectlist[3]))
@@ -89,8 +91,10 @@ def unpack_texture(file, path, suffix):
             if not os.path.exists(os.path.split(path)[0]):
                 os.makedirs(os.path.split(path)[0])
             cropped.save(path + output)
+            real_rectlist = frame["sourceSize"].replace("{", "").replace("}", "").split(",")
+            real_height = int(float(real_rectlist[0] if frame["rotated"] else real_rectlist[1]))
             if suffix != None and suffix != "_1.png":
-                return output, cropped.size
+                return output, cropped.size, real_height
             prop = path.split("/")[2]
             if prop not in index["props"]:
                 index["props"][prop] = dict()
@@ -103,7 +107,7 @@ def unpack_texture(file, path, suffix):
         return unpack_texture(file, path, "_happy_ani01.png")
     if suffix == "_sad_ani00.png":
         return unpack_texture(file, path, "_sad_ani01.png")
-    return None, None
+    return None, None, None
 
 # Make initial file checks
 if not os.path.exists("ccb/resources-phonehd/title.png"):
@@ -120,12 +124,14 @@ if not os.path.exists("kingdom/GingerBrave/default.png"):
 # Initialize index
 index = dict()
 index_old = False
+"""
 if os.path.exists("index.js"):
     with open("index.js") as js:
         data = js.read()
         obj = data[data.find("{") : data.rfind("}") + 1]
         index_old = json.loads(obj)
         print("Loaded index.js successfully!")
+"""
 index["cookies"] = dict()
 index["cookies"]["ovenbreak"] = dict()
 index["cookies"]["kingdom"] = dict()
@@ -184,7 +190,7 @@ for subdir, dirs, files in os.walk("ccb"):
                 if verbosity > 1: print(file + " (skipped)")
                 continue
             im = Image.open(path)
-            width = im.size[0]
+            height = im.size[1]
             if path == "ccb/cutscene6001/resources-phonehd/a_hermit_carb_embarrassed.png": # Random floating pixels
                 im = im.crop((142, 129, 359, 385))
             else:
@@ -193,12 +199,9 @@ for subdir, dirs, files in os.walk("ccb"):
                 os.makedirs("img/cookies/npc")
             im.save("img/cookies/npc/" + file)
             index["cookies"]["ovenbreak"]["npc"]["cutscene"][file] = dict()
-            if width > 700:
-                index["cookies"]["ovenbreak"]["npc"]["cutscene"][file]["width"] = round(im.size[0] / 4)
-                index["cookies"]["ovenbreak"]["npc"]["cutscene"][file]["height"] = round(im.size[1] / 4)
-            else:
-                index["cookies"]["ovenbreak"]["npc"]["cutscene"][file]["width"] = round(im.size[0] / 2)
-                index["cookies"]["ovenbreak"]["npc"]["cutscene"][file]["height"] = round(im.size[1] / 2)
+            index["cookies"]["ovenbreak"]["npc"]["cutscene"][file]["width"] = im.size[0]
+            index["cookies"]["ovenbreak"]["npc"]["cutscene"][file]["height"] = im.size[1]
+            index["cookies"]["ovenbreak"]["npc"]["cutscene"][file]["original_height"] = height
             if verbosity > 0: print(file)
         elif cutscene.match(path):
             if path == "ccb/cutscene9006/resources-phonehd/cookie0145_AUFKM.png":
@@ -216,7 +219,7 @@ for subdir, dirs, files in os.walk("ccb"):
                 if verbosity > 1: print(file + " (skipped)")
                 continue
             im = Image.open(path)
-            width = im.size[0]
+            height = im.size[1]
             # I don't know why but certain sprites don't like my automatic cropping function, it doesn't even appear to be random floating pixels since my image editing programs can do it just fine
             if path == "ccb/cutscene_land/resources-phonehd/cookie0026_embrassed.png":
                 im = im.crop((87, 14, 424, 393))
@@ -236,12 +239,9 @@ for subdir, dirs, files in os.walk("ccb"):
                 os.makedirs("img/cookies/" + cookie)
             im.save("img/cookies/" + cookie + "/" + file)
             index["cookies"]["ovenbreak"][cookie]["cutscene"][file] = dict()
-            if width > 700:
-                index["cookies"]["ovenbreak"][cookie]["cutscene"][file]["width"] = round(im.size[0] / 4)
-                index["cookies"]["ovenbreak"][cookie]["cutscene"][file]["height"] = round(im.size[1] / 4)
-            else:
-                index["cookies"]["ovenbreak"][cookie]["cutscene"][file]["width"] = round(im.size[0] / 2)
-                index["cookies"]["ovenbreak"][cookie]["cutscene"][file]["height"] = round(im.size[1] / 2)
+            index["cookies"]["ovenbreak"][cookie]["cutscene"][file]["width"] = im.size[0]
+            index["cookies"]["ovenbreak"][cookie]["cutscene"][file]["height"] = im.size[1]
+            index["cookies"]["ovenbreak"][cookie]["cutscene"][file]["original_height"] = height
             if verbosity > 0: print(file)
         elif duelloading.match(path) or duelwin.match(path):
             if cookie not in index["cookies"]["ovenbreak"]:
@@ -253,11 +253,14 @@ for subdir, dirs, files in os.walk("ccb"):
                 if verbosity > 1: print(file + " (skipped)")
                 continue
             im = Image.open(path)
+            height = im.size[1]
             # Blame Yogurt Cream Cookie for this too
             if path == "ccb/cookieAni_duelLoading/resources-phonehd/cookie0140z02_duelLoading.png":
                 im = im.crop((59, 56, 671, 724))
             elif path == "ccb/cookieAni_duelWin/resources-phonehd/cookie0048_duelWin.png":
                 im = im.crop((191, 223, 724, 756))
+            elif path == "ccb/cookieAni_duelWin/resources-phonehd/cookie0063z02_duelWin.png":
+                im = im.crop((152, 162, 710, 794))
             elif path == "ccb/cookieAni_duelWin/resources-phonehd/cookie0065_duelWin.png":
                 im = im.crop((0, 155, 687, 771))
             else:
@@ -266,8 +269,9 @@ for subdir, dirs, files in os.walk("ccb"):
                 os.makedirs("img/cookies/" + cookie)
             im.save("img/cookies/" + cookie + "/" + file)
             index["cookies"]["ovenbreak"][cookie]["gameplay"][file] = dict()
-            index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["width"] = round(im.size[0] / 3)
-            index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["height"] = round(im.size[1] / 3)
+            index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["width"] = im.size[0]
+            index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["height"] = im.size[1]
+            index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["original_height"] = height
             if verbosity > 0: print(file)
         elif exhausted.match(path):
             if cookie not in index["cookies"]["ovenbreak"]:
@@ -279,6 +283,7 @@ for subdir, dirs, files in os.walk("ccb"):
                 if verbosity > 1: print(file + " (skipped)")
                 continue
             im = Image.open(path)
+            height = im.size[1]
             im = trim(im)
             if not os.path.exists("img/cookies/" + cookie):
                 os.makedirs("img/cookies/" + cookie)
@@ -288,16 +293,17 @@ for subdir, dirs, files in os.walk("ccb"):
                 index["cookies"]["ovenbreak"][cookie]["cutscene"] = dict()
                 index["cookies"]["ovenbreak"][cookie]["gameplay"] = dict()
             index["cookies"]["ovenbreak"][cookie]["gameplay"][file] = dict()
-            index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["width"] = round(im.size[0])
-            index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["height"] = round(im.size[1])
+            index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["width"] = im.size[0]
+            index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["height"] = im.size[1]
+            index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["original_height"] = 248
             if verbosity > 0: print(file)
         elif head.match(path):
-            if os.path.exists("img/heads/" + file):
-                if verbosity > 1: print(file + " (skipped)")
-                continue
+            im = Image.open(path)
+            padded = Image.new("RGBA", (104, 104))
+            padded.paste(im, (math.ceil((104 - im.size[0]) / 2), math.floor((104 - im.size[1]) / 2)))
             if not os.path.exists("img/heads"):
                 os.makedirs("img/heads")
-            copyfile(path, "img/heads/" + file)
+            padded.save("img/heads/" + file)
             if verbosity > 0: print(file)
         elif stand.match(path):
             if cookie not in index["cookies"]["ovenbreak"]:
@@ -308,35 +314,38 @@ for subdir, dirs, files in os.walk("ccb"):
                 index["cookies"]["ovenbreak"][cookie]["gameplay"][file] = index_old["cookies"]["ovenbreak"][cookie][file]
                 if verbosity > 1: print(file + " (skipped)")
                 continue
-            shop, size = unpack_texture(path, "img/cookies/" + cookie + "/", "_shop.png")
+            shop, size, _ = unpack_texture(path, "img/cookies/" + cookie + "/", "_shop.png")
             index["cookies"]["ovenbreak"][cookie]["gameplay"][shop] = dict()
-            index["cookies"]["ovenbreak"][cookie]["gameplay"][shop]["width"] = round(size[0] * 0.875)
-            index["cookies"]["ovenbreak"][cookie]["gameplay"][shop]["height"] = round(size[1] * 0.875)
+            index["cookies"]["ovenbreak"][cookie]["gameplay"][shop]["width"] = size[0]
+            index["cookies"]["ovenbreak"][cookie]["gameplay"][shop]["height"] = size[1]
+            index["cookies"]["ovenbreak"][cookie]["gameplay"][shop]["original_height"] = 248
         elif state.match(path):
             if cookie not in index["cookies"]["ovenbreak"]:
                 index["cookies"]["ovenbreak"][cookie] = dict()
                 index["cookies"]["ovenbreak"][cookie]["cutscene"] = dict()
                 index["cookies"]["ovenbreak"][cookie]["gameplay"] = dict()
             if path != "ccb/resources-phonehd/cookie0057_state.png" and path != "ccb/resources-phonehd/cookie0065z01_state.png" and path != "ccb/resources-phonehd/cookie0065z02_state.png":
-                happy, size = unpack_texture(path, "img/cookies/" + cookie + "/", "_happy_ani00.png")
+                happy, size, _ = unpack_texture(path, "img/cookies/" + cookie + "/", "_happy_ani00.png")
                 if happy != None:
                     index["cookies"]["ovenbreak"][cookie]["gameplay"][happy] = dict()
-                    index["cookies"]["ovenbreak"][cookie]["gameplay"][happy]["width"] = round(size[0] * 0.875)
-                    index["cookies"]["ovenbreak"][cookie]["gameplay"][happy]["height"] = round(size[1] * 0.875)
+                    index["cookies"]["ovenbreak"][cookie]["gameplay"][happy]["width"] = size[0]
+                    index["cookies"]["ovenbreak"][cookie]["gameplay"][happy]["height"] = size[1]
+                    index["cookies"]["ovenbreak"][cookie]["gameplay"][happy]["original_height"] = 248
                     if verbosity > 0: print(happy)
             # Devsisters Co., Ltd. *laugh track*
             if path == "ccb/resources-phonehd/cookie0033z02_state.png":
-                sad, size = unpack_texture(path, "img/cookies/" + cookie + "/", "_san_ani00.png")
+                sad, size, _ = unpack_texture(path, "img/cookies/" + cookie + "/", "_san_ani00.png")
             elif path == "ccb/resources-phonehd/cookie0043_state.png":
-                sad, size = unpack_texture(path, "img/cookies/" + cookie + "/", "_ani00.png")
+                sad, size, _ = unpack_texture(path, "img/cookies/" + cookie + "/", "_ani00.png")
             elif path == "ccb/resources-phonehd/cookie0038z01_state.png" or path == "ccb/resources-phonehd/cookie0056z01_state.png" or path == "ccb/resources-phonehd/cookie0144_state.png" or path == "ccb/resources-phonehd/cookie0144z01_state.png" or path == "ccb/resources-phonehd/cookie0144z02_state.png": # Duplicate poses
                 continue
             else:
-                sad, size = unpack_texture(path, "img/cookies/" + cookie + "/", "_sad_ani00.png")
+                sad, size, _ = unpack_texture(path, "img/cookies/" + cookie + "/", "_sad_ani00.png")
             if sad != None:
                 index["cookies"]["ovenbreak"][cookie]["gameplay"][sad] = dict()
-                index["cookies"]["ovenbreak"][cookie]["gameplay"][sad]["width"] = round(size[0] * 0.875)
-                index["cookies"]["ovenbreak"][cookie]["gameplay"][sad]["height"] = round(size[1] * 0.875)
+                index["cookies"]["ovenbreak"][cookie]["gameplay"][sad]["width"] = size[0]
+                index["cookies"]["ovenbreak"][cookie]["gameplay"][sad]["height"] = size[1]
+                index["cookies"]["ovenbreak"][cookie]["gameplay"][sad]["original_height"] = 248
                 if verbosity > 0: print(sad)
         elif pet.match(path):
             if index_old and file in index_old["pets"]:
@@ -407,8 +416,8 @@ for subdir, dirs, files in os.walk("ccb"):
 
 # Unpack gameplay sprites
 animations = ["bend", "crash", "exhausted", "extra 1", "extra 2", "extra 3", "extra 4", "extra 5", "extra 6", "extra slide", "fever end fall start", "fever start 1", "fever start 2", "fever start 3", "fever start 4", "slide", "slide2", "transform end", "transform flight", "transform jump", "transform run", "transform start"]
-large = ["cookie0051", "cookie0109", "cookie0112", "cookie0122", "cookie0140", "cookie0141", "cookie0142", "cookie0145", "cookie0150", "cookie0152", "cookie0154", "cookie0155", "cookie0158", "cookie0161", "cookie0163", "cookie0170", "cookie0179", "cookie0182", "cookie0187", "cookie0189", "cookie0190", "cookie0191", "cookie0517", "cookie0522"] # Some cookies' gameplay sprites are randomly really big compared to their shop sprites, so we adjust for that with this array
-small = ["cookie0049", "cookie0057", "cookie0064", "cookie0065", "cookie0070", "cookie0109", "cookie0125", "cookie0155", "cookie0158", "cookie0166", "cookie0178"] # And some cookies' sprites go over our height limit in weird, inconsisent ways that need to be excluded
+#large = ["cookie0051", "cookie0109", "cookie0112", "cookie0122", "cookie0140", "cookie0141", "cookie0142", "cookie0145", "cookie0150", "cookie0152", "cookie0154", "cookie0155", "cookie0158", "cookie0161", "cookie0163", "cookie0170", "cookie0179", "cookie0182", "cookie0187", "cookie0189", "cookie0190", "cookie0191", "cookie0196", "cookie0517", "cookie0522"] # Some cookies' gameplay sprites are randomly really big compared to their shop sprites, so we adjust for that with this array
+#small = ["cookie0049", "cookie0057", "cookie0064", "cookie0065", "cookie0070", "cookie0109", "cookie0125", "cookie0155", "cookie0158", "cookie0166", "cookie0178"] # And some cookies' sprites go over our height limit in weird, inconsisent ways that need to be excluded
 for subdir, dirs, files in os.walk("image/cookie/resources-common"):
     for file in files:
         if forbidden and file in forbidden:
@@ -426,26 +435,35 @@ for subdir, dirs, files in os.walk("image/cookie/resources-common"):
                     if verbosity > 1: print(plist_dict["framelist"][animation["FrameList"][0]] + " (skipped)")
                     continue
                 if key == "fever start 3":
-                    if cookie in ["cookie0061", "cookie0066", "cookie0067", "cookie0068", "cookie0108", "cookie0112", "cookie0125", "cookie0134", "cookie0140", "cookie0143", "cookie0154", "cookie0156", "cookie0161", "cookie0169", "cookie0171", "cookie0184", "cookie0185", "cookie0522"]:
-                        output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][2]])
+                    if cookie in ["cookie0061", "cookie0066", "cookie0067", "cookie0068", "cookie0108", "cookie0112", "cookie0125", "cookie0134", "cookie0140", "cookie0143", "cookie0154", "cookie0156", "cookie0161", "cookie0169", "cookie0171", "cookie0184", "cookie0185", "cookie0195", "cookie0196", "cookie0522"]:
+                        frame = 2
                     elif cookie in ["cookie0109", "cookie0137", "cookie0145", "cookie0182"]:
-                        output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
+                        frame = 0
                     elif cookie in ["cookie0151", "cookie0157"]:
-                        output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][3]])
+                        frame = 3
                     else:
-                        output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][1]])
+                        frame = 1
+                    output, size, height = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][frame]])
                 else:
-                    output, size = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
+                    output, size, height = unpack_texture(path.replace("_aniinfo.plist", ".png"), "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
                 if output != None:
+                    crops = {"cookie0008z01x2_0023.png": (0, 0, 146, 157), "cookie0050x2_0040.png": (54, 0, 163, 123), "cookie0050x2_0041.png": (52, 0, 168, 124), "cookie0069x2_0040.png": (59, 0, 176, 135), "cookie0069z01x2_0040.png": (50, 0, 207, 161), "cookie0069z02x2_0040.png": (55, 0, 196, 166)}
+                    if output in crops:
+                        im = Image.open("img/cookies/" + cookie + "/" + output)
+                        im = im.crop(crops[output])
+                        im.save("img/cookies/" + cookie + "/" + output)
+                        size = im.size
                     index["cookies"]["ovenbreak"][cookie]["gameplay"][output] = dict()
-                    if (size[1] > 292 and cookie not in small and (cookie != "cookie0067" or not output.endswith("_0091.png"))) or output == "cookie0071x2_0136.png" or output == "cookie0071x2_0138.png" or output == "cookie0071z01x2_0136.png" or output == "cookie0071x2_0138.png":
-                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["width"] = round(size[0] * 0.75)
-                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["height"] = round(size[1] * 0.75)
+                    if output == "cookie0127x2_0087.png" or output == "cookie0127z01x2_0087.png":
+                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["width"] = round(size[0] / size[1] * 320)
+                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["height"] = 320
                     else:
                         index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["width"] = size[0]
                         index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["height"] = size[1]
-                    if cookie not in large and (cookie != "cookie0009" or (file[10:3] != "z01" and file[10:13] != "z02")) and (cookie != "cookie0160" or "second" not in file):
-                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["resize"] = False
+                        if height == 500:
+                            height = 501
+                        if cookie != "cookie0049" and file[:13] != "cookie0023z02" and output not in ["cookie0067_secondx2_0001.png", "cookie0067_secondx2_0013.png", "cookie0067z01_secondx2_0001.png", "cookie0067z01_secondx2_0013.png", "cookie0067z02_secondx2_0001.png", "cookie0067z02_secondx2_0013.png", "cookie0070z03x2_0040.png"]:
+                            index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["original_height"] = height
                     if verbosity > 0: print(output)
 
 # Unpack cookie effect sprites
@@ -465,18 +483,51 @@ if os.path.exists("effects.json"):
                     index["cookies"]["ovenbreak"][cookie]["gameplay"][plist_dict["framelist"][animation["FrameList"][0]]] = index_old["cookies"]["ovenbreak"][cookie][plist_dict["framelist"][animation["FrameList"][0]]]
                     if verbosity > 1: print(plist_dict["framelist"][animation["FrameList"][0]] + " (skipped)")
                     continue
-                output, size = unpack_texture("image/effect_cookie/resources-phonehd/" + plist_dict["texture"] + ".png", "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
+                output, size, height = unpack_texture("image/effect_cookie/resources-phonehd/" + plist_dict["texture"] + ".png", "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
                 if output != None:
                     index["cookies"]["ovenbreak"][cookie]["gameplay"][output] = dict()
-                    if size[1] > 292 and cookie not in small:
-                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["width"] = round(size[0] * 0.75)
-                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["height"] = round(size[1] * 0.75)
+                    index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["width"] = size[0]
+                    index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["height"] = size[1]
+                    if i[:10] == "cookie0061" and key != "sleigh":
+                        if i == "cookie0061z01_effect_aniinfo.plist":
+                            index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["original_height"] = 364
+                        else:
+                            index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["original_height"] = 380
                     else:
-                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["width"] = size[0]
-                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["height"] = size[1]
-                    if cookie not in large:
-                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["resize"] = False
+                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["original_height"] = height
                     if verbosity > 0: print(output)
+
+# Unpack obstacle sprites
+if os.path.exists("obstacles.json"):
+    with open("obstacles.json") as obstaclesjson:
+        data = obstaclesjson.read()
+        obstacles = json.loads(data)
+        for subdir, dirs, files in os.walk("image/map_obj/resources-phonehd"):
+            for file in files:
+                if not file.endswith(".plist"):
+                    continue
+                path = os.path.join(subdir, file).replace("\\", "/")
+                root = ElementTree.fromstring(open(path, "r").read())
+                plist_dict = tree_to_dict(root[0])
+                for key in plist_dict["frames"].keys():
+                    if key in obstacles:
+                        if not os.path.exists("img/props/obstacle_" + obstacles[key]):
+                            os.makedirs("img/props/obstacle_" + obstacles[key])
+                        output, size, _ = unpack_texture(path.replace(".plist", ".png"), "img/props/obstacle_" + obstacles[key] + "/", key)
+                        if output != None:
+                            if "obstacle_" + obstacles[key] not in index["props"]:
+                                index["props"]["obstacle_" + obstacles[key]] = dict()
+                            index["props"]["obstacle_" + obstacles[key]][key] = dict()
+                            if key.startswith("land0005_tm002_sd"):
+                                index["props"]["obstacle_" + obstacles[key]][key]["width"] = round(size[0] / size[1] * 360)
+                                index["props"]["obstacle_" + obstacles[key]][key]["height"] = 360
+                            elif size[1] > 180:
+                                index["props"]["obstacle_" + obstacles[key]][key]["width"] = round(size[0] / size[1] * 180)
+                                index["props"]["obstacle_" + obstacles[key]][key]["height"] = 180
+                            else:
+                                index["props"]["obstacle_" + obstacles[key]][key]["width"] = size[0]
+                                index["props"]["obstacle_" + obstacles[key]][key]["height"] = size[1]
+                            print(output)
 
 # Add bonustime backgrounds
 for subdir, dirs, files in os.walk("image/map_bg/resources-common"):
@@ -489,7 +540,7 @@ for subdir, dirs, files in os.walk("image/map_bg/resources-common"):
                 if verbosity > 1: print(file + " (skipped)")
                 continue
             path = os.path.join(subdir, file).replace("\\", "/")
-            output, size = unpack_texture(path, "img/backgrounds/", "_bg_simple1.png")
+            output, size, _ = unpack_texture(path, "img/backgrounds/", "_bg_simple1.png")
             if output != None:
                 im = Image.open("img/backgrounds/" + output)
                 im = im.convert("RGB")
@@ -522,8 +573,7 @@ if os.path.exists("extra.json"):
                 index["cookies"]["ovenbreak"][i]["gameplay"][i2] = dict()
                 index["cookies"]["ovenbreak"][i]["gameplay"][i2]["width"] = extra["cookies"][i][i2]["width"]
                 index["cookies"]["ovenbreak"][i]["gameplay"][i2]["height"] = extra["cookies"][i][i2]["height"]
-                if "resize" in extra["cookies"][i][i2]:
-                    index["cookies"]["ovenbreak"][i]["gameplay"][i2]["resize"] = extra["cookies"][i][i2]["resize"]
+                index["cookies"]["ovenbreak"][i]["gameplay"][i2]["original_height"] = 364
                 if verbosity > 0: print(i2)
         for i in extra["backgrounds"]:
             if i not in index["backgrounds"]["game"]:
@@ -538,7 +588,7 @@ if not os.path.exists("img/props/jelly"):
     os.makedirs("img/props/jelly")
 unpack_texture("image/jelly/resources-phonehd/basic_jelly.png", "img/props/jelly/", None)
 unpack_texture("image/jelly/resources-phonehd/bear_jelly.png", "img/props/jelly/", None)
-output, size = unpack_texture("image/jelly/resources-phonehd/jelly_bearrainbow_fly.png", "img/props/jelly/", "fly01.png")
+output, size, _ = unpack_texture("image/jelly/resources-phonehd/jelly_bearrainbow_fly.png", "img/props/jelly/", "fly01.png")
 index["props"]["jelly"][output] = dict()
 index["props"]["jelly"][output]["width"] = size[0]
 index["props"]["jelly"][output]["height"] = size[1]
@@ -546,7 +596,7 @@ if verbosity > 0: print(output)
 unpack_texture("image/jelly/resources-phonehd/playing_jelly.png", "img/props/jelly/", "_1.png")
 bonustime = ["m2", "b0", "c", "i2", "e0", "f", "g", "b2", "i0", "j", "k", "o1", "m0", "n0", "o0", "n2", "q", "r", "s0", "t0", "u0", "u1", "w", "x", "t1", "z", "e1", "o2", "n1", "u2", "e2"]
 for letter in bonustime:
-    output, size = unpack_texture("image/jelly/resources-phonehd/fever_jelly.png", "img/props/jelly/", "_" + letter + ".png")
+    output, size, _ = unpack_texture("image/jelly/resources-phonehd/fever_jelly.png", "img/props/jelly/", "_" + letter + ".png")
     index["props"]["jelly"][output] = dict()
     index["props"]["jelly"][output]["width"] = size[0]
     index["props"]["jelly"][output]["height"] = size[1]
@@ -625,12 +675,12 @@ if os.path.exists("Patch"):
                         if verbosity > 1: print(plist_dict["framelist"][animation["FrameList"][0]] + " (skipped)")
                         i += 1
                         continue
-                    output, size = unpack_texture(path, "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
+                    output, size, height = unpack_texture(path, "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
                     if output != None:
                         index["cookies"]["ovenbreak"][cookie]["gameplay"][output] = dict()
                         index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["width"] = size[0]
                         index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["height"] = size[1]
-                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["resize"] = False
+                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["original_height"] = height
                         if verbosity > 0: print(output)
                     i += 1
                 # Animation list 2 (bonustime)
@@ -648,18 +698,18 @@ if os.path.exists("Patch"):
                         i += 1
                         continue
                     if i == 3:
-                        output, size = unpack_texture(path, "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][1]])
+                        output, size, height = unpack_texture(path, "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][1]])
                     else:
-                        output, size = unpack_texture(path, "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
+                        output, size, height = unpack_texture(path, "img/cookies/" + cookie + "/", plist_dict["framelist"][animation["FrameList"][0]])
                     if output != None:
                         index["cookies"]["ovenbreak"][cookie]["gameplay"][output] = dict()
                         index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["width"] = size[0]
                         index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["height"] = size[1]
-                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["resize"] = False
+                        index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["original_height"] = height
                         if verbosity > 0: print(output)
                     i += 1
             elif file in intros and not path.startswith("Patch/kakaoBC_SD"):
-                output, size = unpack_texture(path, "img/backgrounds/", intro_suffixes[file])
+                output, size, _ = unpack_texture(path, "img/backgrounds/", intro_suffixes[file])
                 if output != None:
                     im = Image.open("img/backgrounds/" + output)
                     im = im.convert("RGB")
@@ -676,7 +726,7 @@ if os.path.exists("Patch"):
     plist_dict = tree_to_dict(root[0])
     for key in plist_dict["frames"].keys():
         if key.split("_")[0] in pets:
-            output, size = unpack_texture("Patch/kakaoBC_HD/shop_item_pet.png", "img/pets/sweetescape_", key)
+            output, size, _ = unpack_texture("Patch/kakaoBC_HD/shop_item_pet.png", "img/pets/sweetescape_", key)
             index["pets"].append("sweetescape_" + output)
             if verbosity > 0: print(output)
 else:
@@ -702,29 +752,40 @@ if os.path.exists("cookiewars"):
             im = Image.open(path)
             if file.startswith("icon_big"):
                 im = im.resize((256, 224), PIL.Image.BILINEAR)
+            height = im.size[1]
             im = trim(im)
             im.save("img/cookies/wars/" + file)
-            if file.startswith("cutin") or file.startswith("icon"):
-                index["cookies"]["ovenbreak"]["wars"]["cutscene"][file] = dict()
-                if file.startswith("cutin"):
-                    index["cookies"]["ovenbreak"]["wars"]["cutscene"][file]["width"] = round(im.size[0] / (14 / 9))
-                    index["cookies"]["ovenbreak"]["wars"]["cutscene"][file]["height"] = round(im.size[1] / (14 / 9))
-                elif file.startswith("icon_unit"):
-                    index["cookies"]["ovenbreak"]["wars"]["cutscene"][file]["width"] = round(im.size[0] / 1.6)
-                    index["cookies"]["ovenbreak"]["wars"]["cutscene"][file]["height"] = round(im.size[1] / 1.6)
-                else:
-                    index["cookies"]["ovenbreak"]["wars"]["cutscene"][file]["width"] = im.size[0]
-                    index["cookies"]["ovenbreak"]["wars"]["cutscene"][file]["height"] = im.size[1]
-            else:
-                index["cookies"]["ovenbreak"]["wars"]["gameplay"][file] = dict()
-                index["cookies"]["ovenbreak"]["wars"]["gameplay"][file]["width"] = im.size[0]
-                index["cookies"]["ovenbreak"]["wars"]["gameplay"][file]["height"] = im.size[1]
-                index["cookies"]["ovenbreak"]["wars"]["gameplay"][file]["resize"] = False
+            index["cookies"]["ovenbreak"]["wars"]["cutscene"][file] = dict()
+            index["cookies"]["ovenbreak"]["wars"]["cutscene"][file]["width"] = im.size[0]
+            index["cookies"]["ovenbreak"]["wars"]["cutscene"][file]["height"] = im.size[1]
+            index["cookies"]["ovenbreak"]["wars"]["cutscene"][file]["original_height"] = height
             if verbosity > 0: print(file)
+    if os.path.exists("cookiewarsv2"):
+        index["cookies"]["ovenbreak"]["cookie0100"] = dict() # Energy Drink Cookie
+        index["cookies"]["ovenbreak"]["cookie0100"]["cutscene"] = dict()
+        index["cookies"]["ovenbreak"]["cookie0100"]["gameplay"] = dict()
+        if not os.path.exists("img/cookies/cookie0100"):
+            os.makedirs("img/cookies/cookie0100")
+        for subdir, dirs, files in os.walk("cookiewarsv2"):
+            for file in files:
+                path = os.path.join(subdir, file).replace("\\", "/")
+                cookie = file[0:10]
+                im = Image.open(path)
+                copyfile(path, "img/cookies/" + cookie + "/" + file)
+                index["cookies"]["ovenbreak"][cookie]["gameplay"][file] = dict()
+                index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["width"] = im.size[0]
+                index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["height"] = im.size[1]
+                if file[-9:] == "_shop.png":
+                    index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["original_height"] = 269
+                else:
+                    index["cookies"]["ovenbreak"][cookie]["gameplay"][file]["original_height"] = 369
+                if verbosity > 0: print(file)
 else:
     print("CookieWars sprites not found! Make sure the index/cookiewars/ folder is here.")
 
 # Add Kingdom sprites
+npc_heights = dict()
+npc_heights_i = 0
 for subdir, dirs, files in os.walk("kingdom"):
     for file in files:
         if file == "stand.png" and subdir[8:] in ["Almond Cookie", "Black Raison Cookie", "Dark Choco Cookie", "Herb Cookie", "Parfait Cookie", "Red Velvet Cookie", "Rye Cookie"]:
@@ -784,26 +845,7 @@ for subdir, dirs, files in os.walk("kingdom"):
                 if verbosity > 1: print(path + " (skipped)")
                 continue
             im = Image.open(path)
-            if im.size[1] > 1300:
-                factor = 6.5
-            elif im.size[1] > 1000 or path == "kingdom/Pure Vanilla Cookie/hoodless.png":
-                factor = 5.5
-            elif path == "kingdom/NPCs/cakehound_crowned.png":
-                factor = 4
-            elif path == "kingdom/Sonic Cookie/default.png" or path == "kingdom/Tails Cookie/default.png":
-                factor = 2.5
-            elif path.startswith("kingdom/NPCs/dreggman"):
-                factor = 1.5
-            elif im.size[1] > 500 or path == "kingdom/NPCs/cakehound_default.png":
-                factor = 2.75
-            elif im.size[1] > 400 or path == "kingdom/NPCs/sherbet_sick.png":
-                factor = 2.5
-            elif path == "kingdom/Hollyberry Cookie/stand.png":
-                factor = 2
-            elif path.startswith("kingdom/NPCs/durian"):
-                factor = 1
-            else:
-                factor = 1.5
+            height = im.size[1]
             # Floating pixel be like: hi I'm a floating pixel
             if subdir[8:] == "Adventurer Cookie":
                 if file == "embarrassed.png":
@@ -828,9 +870,20 @@ for subdir, dirs, files in os.walk("kingdom"):
                 os.makedirs("img/cookies/kingdom/" + cookie)
             im.save("img/cookies/kingdom/" + cookie + "/" + file)
             index["cookies"]["kingdom"][cookie][file] = dict()
-            index["cookies"]["kingdom"][cookie][file]["width"] = round(im.size[0] / factor)
-            index["cookies"]["kingdom"][cookie][file]["height"] = round(im.size[1] / factor)
+            index["cookies"]["kingdom"][cookie][file]["width"] = im.size[0]
+            index["cookies"]["kingdom"][cookie][file]["height"] = im.size[1]
+            if "NPCs" in path:
+                key = file.split("_")[0]
+                if file in ["cakehound_crowned.png", "chocowerehoundprincess_default.png", "healer_default.png", "hotmalawarrior_default.png", "pitayadragon_default.png", "spicymalawarrior_default.png", "toothpaste_angry.png", "unnamedhuntress_default.png", "wildberry_default.png"]:
+                    key = file
+                if key not in npc_heights:
+                    npc_heights[key] = npc_heights_i
+                    npc_heights_i += 1
+                index["cookies"]["kingdom"][cookie][file]["original_height"] = npc_heights[key]
+            else:
+                index["cookies"]["kingdom"][cookie][file]["original_height"] = height
             if verbosity > 0: print(path)
+
 
 # Prepare to add names to each cookie
 names = False
@@ -853,7 +906,8 @@ for i in sorted(index["cookies"]["ovenbreak"].keys()):
     sorted_cookies = dict()
     if names:
         if i not in names:
-            if i == "cookie0503": sorted_cookies["name"] = "Licorice Cookie"
+            if i == "cookie0100": sorted_cookies["name"] = "Energy Drink Cookie"
+            elif i == "cookie0503": sorted_cookies["name"] = "Licorice Cookie"
             elif i == "cookie0517": sorted_cookies["name"] = "Almond Cookie"
             elif i == "cookie0522": sorted_cookies["name"] = "Lilac Cookie"
             elif i == "dozer": sorted_cookies["name"] = "Dozer"
@@ -885,7 +939,7 @@ for i in sorted(index["cookies"]["ovenbreak"].keys()):
     for i2 in sorted(cookies["gameplay"].keys()):
         if not i2.startswith(i + "z") and i2 not in sorted_cookies:
             sorted_cookies[i2] = cookies["gameplay"][i2]
-    for i2 in chain(range(1, 8), [99]):
+    for i2 in chain(range(1, 8), [91], [99]):
         costume = "z" + str(i2).rjust(2, "0")
         for suffix in suffixes:
             if i + costume + suffix in cookies["gameplay"]:
@@ -907,10 +961,27 @@ for i in sorted(index["cookies"]["ovenbreak"].keys()):
     for i2 in sorted(cookies["gameplay"].keys()):
         if i2 not in sorted_cookies:
             sorted_cookies[i2] = cookies["gameplay"][i2]
+    heights = dict()
+    for i2 in sorted_cookies.keys():
+        if i2 == "name" or "original_height" not in sorted_cookies[i2]:
+            continue
+        if str(sorted_cookies[i2]["original_height"]) not in heights.keys():
+            heights[str(sorted_cookies[i2]["original_height"])] = []
+        heights[str(sorted_cookies[i2]["original_height"])].append(sorted_cookies[i2]["height"])
+    for i2 in heights:
+        median = statistics.median(heights[i2])
+        for i3 in sorted_cookies.keys():
+            if i3 == "name" or "original_height" not in sorted_cookies[i3]:
+                continue
+            if str(sorted_cookies[i3]["original_height"]) == i2:
+                ratio = 180 * (sorted_cookies[i3]["height"] / median)
+                sorted_cookies[i3]["width"] = round(sorted_cookies[i3]["width"] * (ratio / sorted_cookies[i3]["height"]))
+                sorted_cookies[i3]["height"] = round(ratio)
+    for i2 in sorted_cookies.keys():
+        if i2 != "name" and "original_height" in sorted_cookies[i2]:
+            del sorted_cookies[i2]["original_height"]
     sorted_index["cookies"]["ovenbreak"][i] = sorted_cookies
 for i in sorted(index["cookies"]["kingdom"].keys()):
-    if i == "npcs":
-        continue
     cookies = index["cookies"]["kingdom"][i]
     sorted_cookies = dict()
     sorted_cookies["name"] = cookies["name"]
@@ -924,8 +995,38 @@ for i in sorted(index["cookies"]["kingdom"].keys()):
     for i2 in sorted(cookies.keys()):
         if i2 not in sorted_cookies:
             sorted_cookies[i2] = cookies[i2]
+    heights = dict()
+    for i2 in sorted_cookies.keys():
+        if i2 == "name":
+            continue
+        real_height = str(sorted_cookies[i2]["original_height"])
+        if real_height not in heights.keys():
+            heights[str(sorted_cookies[i2]["original_height"])] = []
+        heights[str(sorted_cookies[i2]["original_height"])].append(sorted_cookies[i2]["height"])
+    for i2 in heights:
+        median = statistics.median(heights[i2])
+        for i3 in sorted_cookies.keys():
+            if i3 == "name":
+                continue
+            if str(sorted_cookies[i3]["original_height"]) == i2:
+                key = i3.split("_")[0]
+                if key in ["blueberrybird", "bubblegumbird", "cakehound", "crow.png", "durianeer.png", "durianian.png", "ghostgatekeeper.png", "ghosticecream.png", "ghostlost.png"]:
+                    ratio = 130 * (sorted_cookies[i3]["height"] / median)
+                else:
+                    ratio = 180 * (sorted_cookies[i3]["height"] / median)
+                sorted_cookies[i3]["width"] = round(sorted_cookies[i3]["width"] * (ratio / sorted_cookies[i3]["height"]))
+                sorted_cookies[i3]["height"] = round(ratio)
+    for i2 in sorted_cookies.keys():
+        if i2 != "name":
+            del sorted_cookies[i2]["original_height"]
     sorted_index["cookies"]["kingdom"][i] = sorted_cookies
-sorted_index["cookies"]["kingdom"]["npcs"] = index["cookies"]["kingdom"]["npcs"]
+npcs = sorted_index["cookies"]["kingdom"]["npcs"]
+del sorted_index["cookies"]["kingdom"]["npcs"]
+sorted_index["cookies"]["kingdom"]["npcs"] = npcs
+sorted_index["cookies"]["kingdom"]["npcs"]["cakehound_crowned.png"]["width"] = 140
+sorted_index["cookies"]["kingdom"]["npcs"]["cakehound_crowned.png"]["height"] = 158
+sorted_index["cookies"]["kingdom"]["npcs"]["stinkeyetortuca.png"]["width"] = 255
+sorted_index["cookies"]["kingdom"]["npcs"]["stinkeyetortuca.png"]["height"] = 230
 sorted_index["pets"] = sorted(index["pets"])
 sorted_index["props"] = dict()
 for i in sorted(index["props"].keys()):

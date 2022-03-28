@@ -15,6 +15,7 @@ var cc = {
     textboxRenderCount: 0,
     tail: null,
     selected: null,
+    dragged: null,
     holding: false,
     mobile: false,
     saved: false,
@@ -26,39 +27,27 @@ var cc = {
     title: document.getElementById("title"),
     images: document.getElementById("images")
 };
-if(window.innerWidth < 980) {
-    cc.mobile = true;
-    cc.comic.rows = 2;
-    cc.comic.columns = 2;
-    cc.canvas.width -= 470;
-    cc.canvas.height += 336;
-    document.getElementById("remove-row").disabled = false;
-}
-index.backgrounds["game"].unshift("bg_none.png");
-if(document.body.className === "" && document.cookie.includes("theme=")) document.body.className = document.cookie.split("theme=")[1].split(";")[0];
-render();
-makeUndoPoint();
 
 // Define functions
 
 // Clone an object
-function cloneObject(object, stringify) {
+cc.cloneObject = function(object, stringify) {
     if(object instanceof Element) {
         if(stringify && typeof object.src !== "null") return object.src;
         return object;
     }
     if(object instanceof Array) {
         var copy = [];
-        for(var i = 0, length = object.length; i < length; i++) copy[i] = cloneObject(object[i], stringify);
+        for(var i = 0, length = object.length; i < length; i++) copy[i] = cc.cloneObject(object[i], stringify);
     } else if(object instanceof Object) {
         var copy = {};
-        for(var attribute in object) if(object.hasOwnProperty(attribute)) copy[attribute] = cloneObject(object[attribute], stringify);
+        for(var attribute in object) if(object.hasOwnProperty(attribute)) copy[attribute] = cc.cloneObject(object[attribute], stringify);
     } else return object;
     return copy;
-}
+};
 
 // Draw a textbox to the textbox canvas
-function drawTextbox() {
+cc.drawTextbox = function() {
     var inputWords = document.getElementById("textbox").value.split(" ");
     var inputLines = [""];
     var currentLine = 0;
@@ -72,7 +61,7 @@ function drawTextbox() {
                 inputLines.push(subword);
             } else word = subword;
         });
-        if(cc.textCtx.measureText(inputLines[currentLine] + (inputLines[currentLine] === "" ? "" : " ") + word).width > 282 && inputLines[currentLine] !== "") {
+        if(cc.textCtx.measureText(inputLines[currentLine] + (inputLines[currentLine] === "" ? "" : " ") + word).width > 322 && inputLines[currentLine] !== "") {
             currentLine++;
             inputLines.splice(currentLine, 0, "");
         }
@@ -93,7 +82,7 @@ function drawTextbox() {
     }
     cc.textCanvas.width += 38;
     if(cc.textCanvas.width < 62 && cc.tail !== null) cc.textCanvas.width = 62;
-    else if(cc.textCanvas.width > 320) cc.textCanvas.width = 320;
+    else if(cc.textCanvas.width > 360) cc.textCanvas.width = 360;
     cc.textCtx.font = "Bold 18px CookieRun, Open Sans, sans-serif";
 
     // Draw the corners of the textbox (stored in Base64 so this can run offline without tainting the canvas)
@@ -175,33 +164,24 @@ function drawTextbox() {
             };
         };
     };
-}
+};
 
 // Format for filenames
-function formatFilename(name) {
+cc.formatFilename = function(name) {
     return name.replace(/[^a-z0-9-._]+/gi, " ").replace(/ {2,}/g, " ").trim().replace(/ /g, "_").toLowerCase();
-}
-
-// Load an image into the canvas
-function loadImage(url, callback) {
-    var img = new Image();
-    img.onload = function() {
-        callback(img);
-    };
-    img.src = url;
-}
+};
 
 // Make a backup that can be undone
-function makeUndoPoint() {
+cc.makeUndoPoint = function() {
     if(cc.undoPointer < cc.undoHistory.length - 1) cc.undoHistory = cc.undoHistory.slice(0, cc.undoPointer + 1);
-    cc.undoHistory.push(cloneObject(cc.comic, false));
+    cc.undoHistory.push(cc.cloneObject(cc.comic, false));
     if(cc.undoHistory.length > 50) cc.undoHistory.shift();
     else cc.undoPointer++;
-    toggleControls();
-}
+    cc.toggleControls();
+};
 
 // Print a page of sprites
-function pagify(sprites, id, offset = 0) {
+cc.pagify = function(sprites, id, offset = 0) {
     var className = id.slice(0, -1);
     var newOffset = offset + (id === "backgrounds" ? 12 : 20);
     if(sprites.length === 2) {
@@ -212,20 +192,20 @@ function pagify(sprites, id, offset = 0) {
     if(offset === 0) cc.pageHistory = [];
     if(offset !== 0 || entries.length > newOffset) {
         var previous = document.createElement("button");
-        previous.innerText = translateText("Previous Page");
+        previous.innerText = cc.translateText("Previous Page");
         previous.id = "previous-page";
         if(offset === 0) previous.disabled = true;
         else previous.onclick = function() {
-            pagify(sprites, id, id === "cookies" && key.startsWith("cookie") ? cc.pageHistory[0] : offset - (id === "backgrounds" ? 12 : 20));
+            cc.pagify(sprites, id, id === "cookies" && key.startsWith("cookie") ? cc.pageHistory[0] : offset - (id === "backgrounds" ? 12 : 20));
             cc.pageHistory.shift();
         };
         cc.images.appendChild(previous);
         var next = document.createElement("button");
-        next.innerText = translateText("Next Page");
+        next.innerText = cc.translateText("Next Page");
         next.id = "next-page";
         if(newOffset >= entries.length) next.disabled = true;
         else next.onclick = function() {
-            pagify(sprites, id, newOffset);
+            cc.pagify(sprites, id, newOffset);
             cc.pageHistory.unshift(offset);
         };
         cc.images.appendChild(next);
@@ -234,7 +214,7 @@ function pagify(sprites, id, offset = 0) {
     if(id === "backgrounds") {
         var button = document.createElement("button");
         button.className = "custom-background";
-        button.textContent = translateText("+ Custom Background");
+        button.textContent = cc.translateText("+ Custom Background");
         button.onclick = function() {
             var file = document.createElement("input");
             file.className = "none";
@@ -250,6 +230,7 @@ function pagify(sprites, id, offset = 0) {
                             imgCanvas.width = 454;
                             imgCanvas.height = 320;
                             var imgCtx = imgCanvas.getContext("2d");
+                            imgCtx.imageSmoothingEnabled = true;
                             imgCtx.imageSmoothingQuality = "high";
                             if(img.width / img.height < 1.41875) {
                                 var newHeight = img.height / img.width * 454;
@@ -262,7 +243,7 @@ function pagify(sprites, id, offset = 0) {
                             newImg.onload = function() {
                                 if(cc.selected === null || cc.selected[0] < 0) {
                                     if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
-                                    resetCopy();
+                                    cc.resetCopy();
                                     cc.selected = [-1, newImg];
                                 } else {
                                     var backgroundX = 470 * cc.selected[1] + 8;
@@ -272,10 +253,10 @@ function pagify(sprites, id, offset = 0) {
                                     });
                                     cc.comic.backgrounds.push({"img": newImg, "x": backgroundX, "y": backgroundY});
                                     cc.selected = null;
-                                    makeUndoPoint();
+                                    cc.makeUndoPoint();
                                     if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
                                 }
-                                render();
+                                cc.render();
                             };
                             newImg.src = imgCanvas.toDataURL();
                         }
@@ -312,7 +293,7 @@ function pagify(sprites, id, offset = 0) {
         if(sprites.length === 2) {
             if(id === "cookies" && cc.openTabs[0] === "kingdom") img.src = "assets/img/cookies/kingdom/" + key + "/" + sprite[0];
             else img.src = "assets/img/" + id + "/" + key + "/" + sprite[0];
-            if(id === "cookies" && (!sprite[1].hasOwnProperty("resize") || sprite[1].resize === true)) {
+            if(id === "cookies" && cc.mobile) {
                 img.width = sprite[1].width - sprite[1].width * 0.25;
                 img.height = sprite[1].height - sprite[1].height * 0.25;
             } else {
@@ -327,7 +308,7 @@ function pagify(sprites, id, offset = 0) {
                 if(id === "backgrounds") {
                     if(cc.selected === null || cc.selected[0] < 0) {
                         if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
-                        resetCopy();
+                        cc.resetCopy();
                         cc.selected = [-1, img];
                     } else {
                         var backgroundX = 470 * cc.selected[1] + 8;
@@ -337,11 +318,11 @@ function pagify(sprites, id, offset = 0) {
                         });
                         if(sprite !== "bg_none.png") cc.comic.backgrounds.push({"img": img, "x": backgroundX, "y": backgroundY});
                         cc.selected = null;
-                        makeUndoPoint();
+                        cc.makeUndoPoint();
                         if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
                     }
                 } else {
-                    if((id === "cookies" || id === "pets") && (!sprite[1].hasOwnProperty("resize") || sprite[1].resize === true)) {
+                    if((id === "cookies" || id === "pets") && cc.mobile) {
                         var imgCopy = img.cloneNode();
                         if(id === "pets") {
                             var width = img.width * 0.5;
@@ -354,16 +335,21 @@ function pagify(sprites, id, offset = 0) {
                         }
                         if(cc.selected !== null) cc.comic.sprites.push({"img": imgCopy, "x": 470 * cc.selected[1] + 235 - width / 2, "y": 336 * cc.selected[0] + 168 - height / 2, "width": width, "height": height, "resized": (id === "pets" ? -2 : -1), "flipped": false, "rotated": 0, "held": false});
                         else cc.comic.sprites.push({"img": imgCopy, "x": 470 * Math.floor(cc.comic.columns / 2) + 235 - width / 2, "y": 336 * Math.floor(cc.comic.rows / 2) + 168 - height / 2, "width": width, "height": height, "resized": (id === "pets" ? -2 : -1), "flipped": false, "rotated": 0, "held": false});
-                        imgCopy.addEventListener("load", render);
+                        imgCopy.addEventListener("load", cc.render);
                     } else {
                         if(cc.selected !== null) cc.comic.sprites.push({"img": img, "x": 470 * cc.selected[1] + 235 - img.width / 2, "y": 336 * cc.selected[0] + 168 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "rotated": 0, "held": false});
                         else cc.comic.sprites.push({"img": img, "x": 470 * Math.floor(cc.comic.columns / 2) + 235 - img.width / 2, "y": 336 * Math.floor(cc.comic.rows / 2) + 168 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "rotated": 0, "held": false});
                     }
-                    makeUndoPoint();
-                    toggleControls();
+                    cc.makeUndoPoint();
+                    cc.toggleControls();
                     if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
                 }
-                render();
+                cc.render();
+            };
+            img.ondragstart = function(event) {
+                this.offsetX = event.offsetX;
+                this.offsetY = event.offsetY;
+                cc.dragged = this;
             };
         };
         cc.images.appendChild(img);
@@ -373,13 +359,13 @@ function pagify(sprites, id, offset = 0) {
             cc.images.appendChild(document.createElement("br"));
             var previousClone = previous.cloneNode(true);
             if(!previous.disabled) previousClone.onclick = function() {
-                pagify(sprites, id, id === "cookies" && key.startsWith("cookie") ? cc.pageHistory[0] : offset - (id === "backgrounds" ? 12 : 20));
+                cc.pagify(sprites, id, id === "cookies" && key.startsWith("cookie") ? cc.pageHistory[0] : offset - (id === "backgrounds" ? 12 : 20));
                 cc.pageHistory.shift();
             };
             cc.images.appendChild(previousClone);
             var nextClone = next.cloneNode(true);
             if(!next.disabled) nextClone.onclick = function() {
-                pagify(sprites, id, newOffset);
+                cc.pagify(sprites, id, newOffset);
                 cc.pageHistory.unshift(offset);
             };
             cc.images.appendChild(nextClone);
@@ -389,15 +375,15 @@ function pagify(sprites, id, offset = 0) {
             previous.remove();
         }
     }
-    if(sprites.length === 2 && ["dark_cacao", "eclair", "golden_cheese", "npcs", "sonic", "tails", "tea_knight", "white_lily"].includes(sprites[0])) {
+    if(sprites.length === 2 && ["dark_cacao", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
         var p = document.createElement("p");
-        p.innerHTML = translateText("(Sprites provided by <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>)");
+        p.innerHTML = cc.translateText("(Sprites provided by <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>)");
         cc.images.appendChild(p);
     }
-}
+};
 
 // (Re)render the canvas
-function render() {
+cc.render = function() {
     cc.canvas.width = cc.canvas.width;
     cc.ctx.beginPath();
     cc.ctx.rect(0, 0, cc.canvas.width, cc.canvas.height);
@@ -406,6 +392,7 @@ function render() {
     cc.ctx.beginPath();
     cc.ctx.lineWidth = "4";
     cc.ctx.strokeStyle = "black";
+    cc.ctx.imageSmoothingEnabled = true;
     cc.ctx.imageSmoothingQuality = "high";
     cc.comic.backgrounds.forEach((background) => cc.ctx.drawImage(background.img, background.x, background.y));
     for(var i = 0; i < cc.comic.columns; i++) for(var i2 = 0; i2 < cc.comic.rows; i2++) {
@@ -461,21 +448,21 @@ function render() {
     cc.ctx.fillStyle = "black";
     cc.ctx.textAlign = "left";
     if(cc.selected !== null && cc.selected[0] === -1) {
-        if(cc.selected[1].src.endsWith("/bg_none.png")) cc.ctx.fillText(translateText("Select a background to delete"), 10, cc.canvas.height - 20);
-        else cc.ctx.fillText(translateText("Select a panel to place the background"), 10, cc.canvas.height - 20);
-    } else if(cc.selected !== null && cc.selected[0] === -2) cc.ctx.fillText(translateText("Select a panel to copy"), 10, cc.canvas.height - 20);
-    else if(cc.selected !== null && cc.selected[0] === -3) cc.ctx.fillText(translateText("Select a panel to paste over"), 10, cc.canvas.height - 20);
+        if(cc.selected[1].src.endsWith("/bg_none.png")) cc.ctx.fillText(cc.translateText("Select a background to delete"), 10, cc.canvas.height - 20);
+        else cc.ctx.fillText(cc.translateText("Select a panel to place the background"), 10, cc.canvas.height - 20);
+    } else if(cc.selected !== null && cc.selected[0] === -2) cc.ctx.fillText(cc.translateText("Select a panel to copy"), 10, cc.canvas.height - 20);
+    else if(cc.selected !== null && cc.selected[0] === -3) cc.ctx.fillText(cc.translateText("Select a panel to paste over"), 10, cc.canvas.height - 20);
     else cc.ctx.fillText(cc.comic.title, 10, cc.canvas.height - 20);
-}
+};
 
 // Clear the selection and reset the "Copy Panel" button's text
-function resetCopy() {
+cc.resetCopy = function() {
     cc.selected = null;
-    document.getElementById("copy-panel").textContent = translateText("Copy Panel");
-}
+    document.getElementById("copy-panel").textContent = cc.translateText("Copy Panel");
+};
 
 // Sync canvas with undo history
-function syncUndoHistory() {
+cc.syncUndoHistory = function() {
     if(cc.comic.rows !== cc.undoHistory[cc.undoPointer].rows || cc.comic.columns !== cc.undoHistory[cc.undoPointer].columns) {
         cc.canvas.width = cc.undoHistory[cc.undoPointer].columns * 470;
         cc.canvas.height = cc.undoHistory[cc.undoPointer].rows * 336 + 48;
@@ -488,14 +475,14 @@ function syncUndoHistory() {
         if(cc.undoHistory[cc.undoPointer].columns === 1) document.getElementById("remove-column").disabled = true;
         else document.getElementById("remove-column").disabled = false;
     }
-    cc.comic = cloneObject(cc.undoHistory[cc.undoPointer], false);
+    cc.comic = cc.cloneObject(cc.undoHistory[cc.undoPointer], false);
     cc.title.value = cc.comic.title;
-    toggleControls();
-    render();
-}
+    cc.toggleControls();
+    cc.render();
+};
 
 // Update controls
-function toggleControls() {
+cc.toggleControls = function() {
     Array.prototype.forEach.call(document.getElementById("controls").children, function(element) {
         if(cc.comic.sprites.length === 0) element.setAttribute("disabled", "");
         else element.removeAttribute("disabled");
@@ -519,10 +506,10 @@ function toggleControls() {
     else document.getElementById("undo").disabled = false;
     if(cc.undoPointer >= cc.undoHistory.length - 1) document.getElementById("redo").disabled = true;
     else document.getElementById("redo").disabled = false;
-}
+};
 
 // Translate text to the user's language
-function translateText(text) {
+cc.translateText = function(text) {
     if(cc.language === "en") return text;
     if(cc.language === "es") switch(text) {
         case "Clear":
@@ -620,13 +607,13 @@ function translateText(text) {
             return "웹 브라우저 제한으로 인해 로컬 파일에서 이 웹 사이트를 실행하는 동안 다운로드 버튼이 작동하지 않습니다. 대신 만화를 마우스 오른쪽 버튼으로 클릭하거나 길게 누르고 \"이미지 다운로드를\"을 선택하여 만화를 저장합니다.";
     }
     return text;
-}
+};
 
 // Define events
 
 // Handle user leaving the page with comic unfinished
 window.onbeforeunload = function() {
-    if(cc.comic.sprites.length > 2 && !cc.saved) return translateText("Warning! Your comic will be lost unless you save or export it.");
+    if(cc.comic.sprites.length > 2 && !cc.saved) return cc.translateText("Warning! Your comic will be lost unless you save or export it.");
 }
 
 // Handle clicks and taps
@@ -648,63 +635,10 @@ cc.canvas.onmousedown = cc.canvas.ontouchstart = function(event) {
                 cc.holding = true;
                 cc.startX = x;
                 cc.startY = y;
-                toggleControls();
+                cc.toggleControls();
+                cc.render();
             }
         }
-        if(cc.holding === false) {
-            for(var i = 0; i < cc.comic.columns; i++) for(var i2 = 0; i2 < cc.comic.rows; i2++) {
-                if(x > 470 * i + 8 && x < 470 * i + 462 && y > 336 * i2 + 8 && y < 336 * i2 + 328) {
-                    if(cc.selected !== null && cc.selected[0] === i2 && cc.selected[1] === i) cc.selected = null;
-                    else if(cc.selected !== null && cc.selected[0] === -1) {
-                        var backgroundX = 470 * i + 8;
-                        var backgroundY = 336 * i2 + 8;
-                        cc.comic.backgrounds.forEach(function(background, i) {
-                            if(background.x === backgroundX && background.y === backgroundY) cc.comic.backgrounds.splice(i, 1);
-                        });
-                        if(!cc.selected[1].src.endsWith("/bg_none.png")) cc.comic.backgrounds.push({"img": cc.selected[1], "x": backgroundX, "y": backgroundY});
-                        cc.selected = null;
-                        makeUndoPoint();
-                    } else if(cc.selected !== null && cc.selected[0] === -2) {
-                        cc.selected = [-3, [i2, i]];
-                        render();
-                    } else if(cc.selected !== null && cc.selected[0] === -3) {
-                        if(i2 !== cc.selected[1][0] || i !== cc.selected[1][1]) {
-                            var backgroundX = 470 * i + 8;
-                            var backgroundY = 336 * i2 + 8;
-                            var oldBackgroundX = 470 * cc.selected[1][1] + 8;
-                            var oldBackgroundY = 336 * cc.selected[1][0] + 8;
-                            cc.comic.backgrounds.forEach(function(background, i) {
-                                if(background.x === backgroundX && background.y === backgroundY) {
-                                    cc.comic.backgrounds.splice(i, 1);
-                                    return;
-                                }
-                            });
-                            cc.comic.backgrounds.forEach(function(background) {
-                                if(background.x === oldBackgroundX && background.y === oldBackgroundY) {
-                                    cc.comic.backgrounds.push({"img": background.img, "x": backgroundX, "y": backgroundY});
-                                    return;
-                                }
-                            });
-                            var splices = [];
-                            cc.comic.sprites.forEach(function(sprite, i) {
-                                var centerX = sprite.x + sprite.width / 2;
-                                var centerY = sprite.y + sprite.height / 2;
-                                var differenceX = centerX - oldBackgroundX;
-                                var differenceY = centerY - oldBackgroundY;
-                                if(differenceX >= 0 && differenceX <= 470 && differenceY >= 0 && differenceY <= 336) cc.comic.sprites.push({"img": sprite.img, "x": backgroundX + differenceX - sprite.width / 2, "y": backgroundY + differenceY - sprite.height / 2, "width": sprite.width, "height": sprite.height, "resized": sprite.resized, "flipped": sprite.flipped, "rotated": sprite.rotated, "held": false});
-                                else if(centerX - backgroundX >= 0 && centerX - backgroundX <= 470 && centerY - backgroundY >= 0 && centerY - backgroundY <= 336) splices.push(i);
-                            });
-                            splices.forEach(function(splice, i) {
-                                cc.comic.sprites.splice(splice - i, 1);
-                            });
-                            resetCopy();
-                            makeUndoPoint();
-                        }
-                    } else cc.selected = [i2, i];
-                }
-            }
-        }
-        render();
     }
 };
 
@@ -714,7 +648,6 @@ document.onmousemove = document.ontouchmove = function(event) {
         cc.comic.sprites.forEach(function(element) {
             if(element.held === true) {
                 if(event.type === "touchmove") {
-                    event.preventDefault();
                     var canvasX = (event.changedTouches[0].pageX - cc.canvas.offsetLeft) * cc.canvas.width / cc.canvas.clientWidth;
                     var canvasY = (event.changedTouches[0].pageY - cc.canvas.offsetTop) * cc.canvas.height / cc.canvas.clientHeight;
                 } else {
@@ -727,26 +660,82 @@ document.onmousemove = document.ontouchmove = function(event) {
                 cc.startY = canvasY;
             }
         });
-        render();
+        cc.render();
     }
 };
 
 // Handle mouse/finger release
-document.onmouseup = document.ontouchend = function() {
+document.onmouseup = document.ontouchend = function(event) {
+    if(cc.holding === false && (event.type === "touchend" || event.button === 0)) {
+        if(event.type === "touchend") {
+            var x = (event.changedTouches[0].pageX - cc.canvas.offsetLeft) * cc.canvas.width / cc.canvas.clientWidth;
+            var y = (event.changedTouches[0].pageY - cc.canvas.offsetTop) * cc.canvas.height / cc.canvas.clientHeight;
+        } else {
+            var x = (event.pageX - cc.canvas.offsetLeft) * cc.canvas.width / cc.canvas.clientWidth;
+            var y = (event.pageY - cc.canvas.offsetTop) * cc.canvas.height / cc.canvas.clientHeight;
+        }
+        for(var i = 0; i < cc.comic.columns; i++) for(var i2 = 0; i2 < cc.comic.rows; i2++) {
+            if(x > 470 * i + 8 && x < 470 * i + 462 && y > 336 * i2 + 8 && y < 336 * i2 + 328) {
+                if(cc.selected !== null && cc.selected[0] === i2 && cc.selected[1] === i) cc.selected = null;
+                else if(cc.selected !== null && cc.selected[0] === -1) {
+                    var backgroundX = 470 * i + 8;
+                    var backgroundY = 336 * i2 + 8;
+                    cc.comic.backgrounds.forEach(function(background, i) {
+                        if(background.x === backgroundX && background.y === backgroundY) cc.comic.backgrounds.splice(i, 1);
+                    });
+                    if(!cc.selected[1].src.endsWith("/bg_none.png")) cc.comic.backgrounds.push({"img": cc.selected[1], "x": backgroundX, "y": backgroundY});
+                    cc.selected = null;
+                    cc.makeUndoPoint();
+                } else if(cc.selected !== null && cc.selected[0] === -2) {
+                    cc.selected = [-3, [i2, i]];
+                    cc.render();
+                } else if(cc.selected !== null && cc.selected[0] === -3) {
+                    if(i2 !== cc.selected[1][0] || i !== cc.selected[1][1]) {
+                        var backgroundX = 470 * i + 8;
+                        var backgroundY = 336 * i2 + 8;
+                        var oldBackgroundX = 470 * cc.selected[1][1] + 8;
+                        var oldBackgroundY = 336 * cc.selected[1][0] + 8;
+                        cc.comic.backgrounds.forEach(function(background, i) {
+                            if(background.x === backgroundX && background.y === backgroundY) {
+                                cc.comic.backgrounds.splice(i, 1);
+                                return;
+                            }
+                        });
+                        cc.comic.backgrounds.forEach(function(background) {
+                            if(background.x === oldBackgroundX && background.y === oldBackgroundY) {
+                                cc.comic.backgrounds.push({"img": background.img, "x": backgroundX, "y": backgroundY});
+                                return;
+                            }
+                        });
+                        var splices = [];
+                        cc.comic.sprites.forEach(function(sprite, i) {
+                            var centerX = sprite.x + sprite.width / 2;
+                            var centerY = sprite.y + sprite.height / 2;
+                            var differenceX = centerX - oldBackgroundX;
+                            var differenceY = centerY - oldBackgroundY;
+                            if(differenceX >= 0 && differenceX <= 470 && differenceY >= 0 && differenceY <= 336) cc.comic.sprites.push({"img": sprite.img, "x": backgroundX + differenceX - sprite.width / 2, "y": backgroundY + differenceY - sprite.height / 2, "width": sprite.width, "height": sprite.height, "resized": sprite.resized, "flipped": sprite.flipped, "rotated": sprite.rotated, "held": false});
+                            else if(centerX - backgroundX >= 0 && centerX - backgroundX <= 470 && centerY - backgroundY >= 0 && centerY - backgroundY <= 336) splices.push(i);
+                        });
+                        splices.forEach(function(splice, i) {
+                            cc.comic.sprites.splice(splice - i, 1);
+                        });
+                        cc.resetCopy();
+                        cc.makeUndoPoint();
+                    }
+                } else cc.selected = [i2, i];
+                cc.render();
+            }
+        }
+    }
     cc.holding = false;
     cc.comic.sprites.forEach(function(element, index) {
         if(element.held) {
             element.held = false;
             if(element.x > cc.canvas.width - 10 || element.y > cc.canvas.height - 58 || element.x <= -element.width + 10 || element.y <= -element.height + 10) cc.comic.sprites.splice(index, 1);
-            makeUndoPoint();
+            cc.makeUndoPoint();
         }
     });
-    toggleControls();
-};
-
-// Cancel touch event to avoid weird canvas selection bug
-cc.canvas.ontouchend = function(event) {
-    event.preventDefault();
+    cc.toggleControls();
 };
 
 // Handle file drag
@@ -756,7 +745,7 @@ document.ondragover = document.ondragenter = function(event) {
 }
 
 // Handle file paste
-document.ondrop = document.onpaste = function(event) {
+document.onpaste = cc.canvas.ondrop = function(event) {
     var files;
     if(event.type === "drop") files = event.dataTransfer.files;
     else {
@@ -768,29 +757,32 @@ document.ondrop = document.onpaste = function(event) {
             event.preventDefault();
             var img = new Image();
             img.onload = function() {
-                if(img.width > 0 && img.height > 0) {
+                if(event.type === "drop" && cc.dragged !== null && cc.dragged.naturalWidth === img.width && cc.dragged.naturalHeight === img.height) {
+                    cc.comic.sprites.push({"img": img, "x": event.offsetX * (cc.canvas.width / cc.canvas.offsetWidth) - cc.dragged.offsetX, "y": event.offsetY * (cc.canvas.height / cc.canvas.offsetHeight) - cc.dragged.offsetY, "width": cc.dragged.width, "height": cc.dragged.height, "resized": 0, "flipped": false, "rotated": 0, "held": false});
+                    cc.dragged = null;
+                } else {
                     if(img.width > 324) {
                         img.height = img.height * (324 / img.width);
                         img.width = 324;
                     }
-                    if(img.height > 182) {
-                        img.width = img.width * (182 / img.height);
-                        img.height = 182;
+                    if(img.height > 180) {
+                        img.width = img.width * (180 / img.height);
+                        img.height = 180;
                     }
                     if(cc.selected !== null) cc.comic.sprites.push({"img": img, "x": 470 * cc.selected[1] + 235 - img.width / 2, "y": 336 * cc.selected[0] + 168 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "rotated": 0, "held": false});
                     else cc.comic.sprites.push({"img": img, "x": 470 * Math.floor(cc.comic.columns / 2) + 235 - img.width / 2, "y": 336 * Math.floor(cc.comic.rows / 2) + 168 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "rotated": 0, "held": false});
-                    makeUndoPoint();
-                    toggleControls();
-                    if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
-                    render();
                 }
+                cc.makeUndoPoint();
+                cc.toggleControls();
+                if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
+                cc.render();
             };
             var reader = new FileReader();
             reader.onload = () => img.src = reader.result;
             reader.readAsDataURL(file);
         }
     });
-}
+};
 
 // Handle tab clicks
 Array.prototype.forEach.call(document.getElementsByClassName("openable"), function(element) {
@@ -810,8 +802,8 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                             document.getElementById(cc.openTabs[0]).className = "tab";
                             document.getElementById(cc.openTabs[1]).className = "tab unopened";
                         }
-                        document.getElementById("ovenbreak").textContent = translateText("OvenBreak/LINE");
-                        document.getElementById("kingdom").textContent = translateText("Kingdom");
+                        document.getElementById("ovenbreak").textContent = cc.translateText("OvenBreak/LINE");
+                        document.getElementById("kingdom").textContent = cc.translateText("Kingdom");
                     }
                     if(cc.comic.sprites.length) cc.title.className = "none";
                     document.getElementById("tabs").className = "";
@@ -881,7 +873,7 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                             }
                         }
                     } else {
-                        img.src = "assets/img/props/" + sprite[0] + "/" + Object.entries(subentries[sprite[0] === "effect" ? 12 : 0])[0][1];
+                        img.src = "assets/img/props/" + sprite[0] + "/" + Object.entries(subentries[sprite[0] === "effect" ? 11 : 0])[0][1];
                         if(sprite[0] === "relic") {
                             img.width = 82;
                             img.height = 92;
@@ -896,7 +888,7 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                         document.getElementById("tabs").className = "none";
                         document.getElementById("back").className = element.id;
                         document.getElementById("options").className = "none";
-                        pagify(sprite, element.id === "cookys" ? "cookies" : element.id);
+                        cc.pagify(sprite, element.id === "cookys" ? "cookies" : element.id);
                     };
                     cc.images.appendChild(img);
                     if(element.id === "cookys" && document.getElementById("sort").value === "recent" && sprite[0] === cc.cookieHistory[cc.openTabs[0]][0]) cc.images.appendChild(document.createElement("br"));
@@ -909,14 +901,14 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                             document.getElementById(cc.openTabs[0]).className = "tab unopened";
                             document.getElementById(cc.openTabs[1]).className = "tab";
                         }
-                        document.getElementById("ovenbreak").textContent = translateText("Game Locations");
-                        document.getElementById("kingdom").textContent = translateText("Basic Backdrops");
+                        document.getElementById("ovenbreak").textContent = cc.translateText("Game Locations");
+                        document.getElementById("kingdom").textContent = cc.translateText("Basic Backdrops");
                     }
                     if(cc.comic.sprites.length) cc.title.className = "none";
                     document.getElementById("tabs").className = "";
                     document.getElementById("options").className = "none";
                 }
-                pagify(element.id === "backgrounds" ? (cc.openTabs[1] === "kingdom" ? index.backgrounds.basic : index.backgrounds.game) : index.pets, element.id);
+                cc.pagify(element.id === "backgrounds" ? (cc.openTabs[1] === "kingdom" ? index.backgrounds.basic : index.backgrounds.game) : index.pets, element.id);
             }
             Array.prototype.forEach.call(document.getElementsByClassName("opened"), function(opened) {
                 opened.className = "openable";
@@ -935,6 +927,7 @@ document.getElementById("textboxes").onclick = function() {
         cc.title.className = "";
         document.getElementById("tabs").className = "none";
         document.getElementById("back").className = "none";
+        document.getElementById("options").className = "none";
         cc.images.innerHTML = "";
         cc.images.className = "flex";
         cc.tail = null;
@@ -948,12 +941,12 @@ document.getElementById("textboxes").onclick = function() {
             // This 10-millisecond timer is necessary to avoid a bug where typing too fast in a textbox can cause the text to flip or double
             var localTextboxRenderCount = cc.textboxRenderCount;
             setTimeout(function() {
-                if(cc.textboxRenderCount === localTextboxRenderCount) drawTextbox();
+                if(cc.textboxRenderCount === localTextboxRenderCount) cc.drawTextbox();
             }, 10);
         };
         cc.images.appendChild(text);
         var button = document.createElement("button");
-        button.innerText = translateText("Create");
+        button.innerText = cc.translateText("Create");
         button.id = "create";
         button.disabled = true;
         cc.images.appendChild(button);
@@ -969,8 +962,8 @@ document.getElementById("textboxes").onclick = function() {
                 text.value = "";
                 cc.textCanvas.width = 0;
                 cc.textCanvas.height = 0;
-                render();
-                makeUndoPoint();
+                cc.render();
+                cc.makeUndoPoint();
                 if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
             };
         };
@@ -986,7 +979,7 @@ document.getElementById("textboxes").onclick = function() {
                     this.className = "tail noblock";
                     cc.tail = null;
                 }
-                drawTextbox();
+                cc.drawTextbox();
             };
         });
         Array.prototype.forEach.call(document.getElementsByClassName("opened"), function(opened) {
@@ -1028,9 +1021,9 @@ document.getElementById("import").onclick = function() {
                             img.onload = function() {
                                 sprite.img = img;
                                 cc.undoPointer--;
-                                makeUndoPoint();
-                                toggleControls();
-                                render();
+                                cc.makeUndoPoint();
+                                cc.toggleControls();
+                                cc.render();
                             };
                             sprite.img = imgTemp;
                             cc.comic.sprites.push(sprite);
@@ -1044,15 +1037,15 @@ document.getElementById("import").onclick = function() {
                             background.img = img;
                             cc.comic.backgrounds.push(background);
                             cc.undoPointer--;
-                            makeUndoPoint();
-                            toggleControls();
-                            render();
+                            cc.makeUndoPoint();
+                            cc.toggleControls();
+                            cc.render();
                         };
                     });
-                    render();
+                    cc.render();
                 } catch(err) {
                     console.log(err);
-                    alert(translateText("Could not import your comic. Is it in the right format?"));
+                    alert(cc.translateText("Could not import your comic. Is it in the right format?"));
                 }
             });
             reader.readAsBinaryString(file.files[0]);
@@ -1064,38 +1057,38 @@ document.getElementById("import").onclick = function() {
 // Handle export button
 document.getElementById("export").onclick = function() {
     var link = document.createElement("a");
-    link.href = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cloneObject(cc.comic, true)));
+    link.href = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cc.cloneObject(cc.comic, true)));
     if(cc.comic.title === "") link.download = "comic.json";
-    else link.download = formatFilename(cc.comic.title) + ".json";
+    else link.download = cc.formatFilename(cc.comic.title) + ".json";
     link.click();
     cc.saved = true;
 };
 
 // Handle clear button
 document.getElementById("clear").onclick = function() {
-    if(this.textContent !== translateText("Are you sure?")) {
-        this.textContent = translateText("Are you sure?");
+    if(this.textContent !== cc.translateText("Are you sure?")) {
+        this.textContent = cc.translateText("Are you sure?");
         setTimeout(function() {
-            document.getElementById("clear").textContent = translateText("Clear");
+            document.getElementById("clear").textContent = cc.translateText("Clear");
         }, 3000);
     } else {
-        this.textContent = translateText("Clear");
+        this.textContent = cc.translateText("Clear");
         cc.comic = {"title": "", "rows": cc.comic.rows, "columns": cc.comic.columns, "sprites": [], "backgrounds": []};
         document.getElementById("share").className = "";
         document.getElementById("share-output").className = "none";
         cc.title.value = "";
         cc.saved = false;
-        render();
-        makeUndoPoint();
+        cc.render();
+        cc.makeUndoPoint();
     }
 };
 
 // Handle share button
 document.getElementById("share").onclick = function() {
     this.disabled = true;
-    this.textContent = translateText("Uploading...");
-    resetCopy();
-    render();
+    this.textContent = cc.translateText("Uploading...");
+    cc.resetCopy();
+    cc.render();
     if(cc.comic.columns > 1 || cc.comic.title === "") {
         cc.ctx.font = "Bold 24px CookieRun, Open Sans, sans-serif";
         cc.ctx.fillStyle = "black";
@@ -1105,20 +1098,20 @@ document.getElementById("share").onclick = function() {
     try {
         cc.canvas.toBlob(function(blob) {
             var data = new FormData();
-            data.append("comic", JSON.stringify(cloneObject(cc.comic, true), null, null));
+            data.append("comic", JSON.stringify(cc.cloneObject(cc.comic, true), null, null));
             if(cc.comic.title === "") data.append("image", blob, "comic.png");
-            else data.append("image", blob, formatFilename(cc.comic.title) + ".png");
+            else data.append("image", blob, cc.formatFilename(cc.comic.title) + ".png");
             fetch("https://cookiecomiccreator.co/share", {
                 method: "POST",
                 body: data
             }).then(function(response) {
                 response.text().then(function(text) {
-                    render();
+                    cc.render();
                     document.getElementById("share").disabled = false;
-                    document.getElementById("share").textContent = translateText("Share");
+                    document.getElementById("share").textContent = cc.translateText("Share");
                     if(!response.ok) {
-                        if(text.length) alert(translateText("An error occurred while trying to share the comic. (") + text + ")");
-                        else alert(translateText("An error occurred while trying to share the comic. (") + response.status + ")");
+                        if(text.length) alert(cc.translateText("An error occurred while trying to share the comic. (") + text + ")");
+                        else alert(cc.translateText("An error occurred while trying to share the comic. (") + response.status + ")");
                     } else {
                         document.getElementById("share").className = "none";
                         document.getElementById("share-output").className = "";
@@ -1134,8 +1127,8 @@ document.getElementById("share").onclick = function() {
         });
     } catch(err) {
         document.getElementById("share").disabled = false;
-        document.getElementById("share").textContent = translateText("Share");
-        render();
+        document.getElementById("share").textContent = cc.translateText("Share");
+        cc.render();
         alert(err);
     }
 };
@@ -1145,38 +1138,38 @@ document.getElementById("share-external").onclick = function() {
     try {
         navigator.share({title: cc.comic.title.length > 0 ? cc.comic.title : "Comic", url: document.getElementById("share-link").href});
     } catch(err) {
-        alert(translateText("An error occurred while trying to share the comic. (") + err + ")");
+        alert(cc.translateText("An error occurred while trying to share the comic. (") + err + ")");
     }
 };
 
 // Handle title changes
 cc.title.oninput = function() {
     cc.comic.title = this.value;
-    render();
+    cc.render();
 };
 
 // Make an undo point after the title is changed
 cc.title.onchange = function() {
-    makeUndoPoint();
+    cc.makeUndoPoint();
 }
 
 // Handle rotate slider move
 document.getElementById("rotate").oninput = function() {
     cc.comic.sprites[cc.comic.sprites.length - 1].rotated = this.value;
-    render();
+    cc.render();
 };
 
 // Make an undo point when the rotate slider is released
 document.getElementById("rotate").onchange = function() {
-    makeUndoPoint();
+    cc.makeUndoPoint();
 };
 
 // Handle flip image button
 document.getElementById("flip-image").onclick = function() {
     if(cc.comic.sprites[cc.comic.sprites.length - 1].flipped) cc.comic.sprites[cc.comic.sprites.length - 1].flipped = false;
     else cc.comic.sprites[cc.comic.sprites.length - 1].flipped = true;
-    render();
-    makeUndoPoint();
+    cc.render();
+    cc.makeUndoPoint();
 };
 
 // Handle resize slider move
@@ -1188,33 +1181,33 @@ document.getElementById("resize").oninput = function() {
     cc.comic.sprites[cc.comic.sprites.length - 1].y += (cc.comic.sprites[cc.comic.sprites.length - 1].height - new_height) / 2;
     cc.comic.sprites[cc.comic.sprites.length - 1].width = new_width;
     cc.comic.sprites[cc.comic.sprites.length - 1].height = new_height;
-    render();
+    cc.render();
 };
 
 // Make an undo point when the resize slider is released
 document.getElementById("resize").onchange = function() {
-    makeUndoPoint();
+    cc.makeUndoPoint();
 };
 
 // Handle undo button
 document.getElementById("undo").onclick = function() {
     cc.undoPointer--;
-    syncUndoHistory();
+    cc.syncUndoHistory();
 };
 
 // Handle redo button
 document.getElementById("redo").onclick = function() {
     cc.undoPointer++;
-    syncUndoHistory();
+    cc.syncUndoHistory();
 };
 
 // Handle new row button
 document.getElementById("add-row").onclick = function() {
     cc.comic.rows += 1;
     cc.canvas.height += 336;
-    resetCopy();
-    render();
-    makeUndoPoint();
+    cc.resetCopy();
+    cc.render();
+    cc.makeUndoPoint();
     if(cc.comic.rows >= (cc.mobile ? 4 : 5)) this.disabled = true;
     else document.getElementById("remove-row").disabled = false;
 };
@@ -1223,9 +1216,9 @@ document.getElementById("add-row").onclick = function() {
 document.getElementById("remove-row").onclick = function() {
     cc.comic.rows -= 1;
     cc.canvas.height -= 336;
-    resetCopy();
-    render();
-    makeUndoPoint();
+    cc.resetCopy();
+    cc.render();
+    cc.makeUndoPoint();
     if(cc.comic.rows === 1) this.disabled = true;
     else document.getElementById("add-row").disabled = false;
 };
@@ -1234,9 +1227,9 @@ document.getElementById("remove-row").onclick = function() {
 document.getElementById("add-column").onclick = function() {
     cc.comic.columns += 1;
     cc.canvas.width += 470;
-    resetCopy();
-    render();
-    makeUndoPoint();
+    cc.resetCopy();
+    cc.render();
+    cc.makeUndoPoint();
     if(cc.comic.columns >= (cc.mobile ? 3 : 4)) this.disabled = true;
     else document.getElementById("remove-column").disabled = false;
 };
@@ -1245,27 +1238,27 @@ document.getElementById("add-column").onclick = function() {
 document.getElementById("remove-column").onclick = function() {
     cc.comic.columns -= 1;
     cc.canvas.width -= 470;
-    resetCopy();
-    render();
-    makeUndoPoint();
+    cc.resetCopy();
+    cc.render();
+    cc.makeUndoPoint();
     if(cc.comic.columns === 1) this.disabled = true;
     else document.getElementById("add-column").disabled = false;
 };
 
 // Handle panel copy button
 document.getElementById("copy-panel").onclick = function() {
-    this.textContent = translateText("Cancel Copy");
+    this.textContent = cc.translateText("Cancel Copy");
     if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
     if(cc.selected === null || cc.selected[0] === -1) cc.selected = [-2, 0];
     else if(cc.selected[0] >= 0) cc.selected = [-3, cc.selected];
-    else resetCopy();
-    render();
+    else cc.resetCopy();
+    cc.render();
 };
 
 // Handle save image button
 document.getElementById("save-image").onclick = function() {
-    resetCopy();
-    render();
+    cc.resetCopy();
+    cc.render();
     if(cc.comic.columns > 1 || cc.comic.title === "") {
         cc.ctx.font = "Bold 24px CookieRun, Open Sans, sans-serif";
         cc.ctx.fillStyle = "black";
@@ -1275,13 +1268,13 @@ document.getElementById("save-image").onclick = function() {
     try {
         var link = document.createElement("a");
         link.href = cc.canvas.toDataURL();
-        if(cc.comic.columns > 1 || cc.comic.title === "") render();
+        if(cc.comic.columns > 1 || cc.comic.title === "") cc.render();
         if(cc.comic.title === "") link.download = "comic.png";
-        else link.download = formatFilename(cc.comic.title) + ".png";
+        else link.download = cc.formatFilename(cc.comic.title) + ".png";
         link.click();
         cc.saved = true;
     } catch(err) {
-        if(err.code === 18) alert(translateText("Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic."));
+        if(err.code === 18) alert(cc.translateText("Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic."));
         else alert(err);
     }
 };
@@ -1334,10 +1327,10 @@ document.getElementById("custom").onclick = function() {
                     }
                     if(cc.selected !== null) cc.comic.sprites.push({"img": img, "x": 470 * cc.selected[1] + 235 - img.width / 2, "y": 336 * cc.selected[0] + 168 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "rotated": 0, "held": false});
                     else cc.comic.sprites.push({"img": img, "x": 470 * Math.floor(cc.comic.columns / 2) + 235 - img.width / 2, "y": 336 * Math.floor(cc.comic.rows / 2) + 168 - img.height / 2, "width": img.width, "height": img.height, "resized": 0, "flipped": false, "rotated": 0, "held": false});
-                    makeUndoPoint();
-                    toggleControls();
+                    cc.makeUndoPoint();
+                    cc.toggleControls();
                     if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
-                    render();
+                    cc.render();
                 }
             };
             var reader = new FileReader();
@@ -1361,7 +1354,7 @@ document.getElementById("sort").onchange = function() {
     if(cc.sortHistory.length === 5) {
         var option = document.createElement("option");
         option.value = "secret";
-        option.textContent = translateText("Secret sort");
+        option.textContent = cc.translateText("Secret sort");
         this.appendChild(option);
     }
     var opened = document.getElementsByClassName("opened")[0];
@@ -1376,3 +1369,17 @@ Array.prototype.forEach.call(document.getElementsByClassName("theme"), function(
         document.cookie = "theme=" + element.getAttribute("name") + "; max-age=2592000; path=/";
     };
 });
+
+// Finally, initialize the site
+if(window.innerWidth < 980) {
+    cc.mobile = true;
+    cc.comic.rows = 2;
+    cc.comic.columns = 2;
+    cc.canvas.width -= 470;
+    cc.canvas.height += 336;
+    document.getElementById("remove-row").disabled = false;
+}
+index.backgrounds["game"].unshift("bg_none.png");
+if(document.body.className === "" && document.cookie.includes("theme=")) document.body.className = document.cookie.split("theme=")[1].split(";")[0];
+cc.render();
+cc.makeUndoPoint();
