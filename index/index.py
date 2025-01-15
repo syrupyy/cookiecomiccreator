@@ -636,7 +636,7 @@ if os.path.exists("Patch"):
     ch = re.compile("Patch/kakaoBC_SD/ch[0-9]{2}(_.+)?x2\\.png")
     intros = ["intro_epN04.png", "intro_epN05.png", "intro_epS01.png", "intro_epS02.png"]
     intro_suffixes = {"intro_epN04.png": "intro_epN04_back.png", "intro_epN05.png": "intro_epN05_bg.png", "intro_epS01.png": "intro_epS01_bg.png", "intro_epS02.png": "intro_epS02_1.png"}
-    cookies = ["ch04", "ch05", "ch06", "ch10", "ch14", "ch21"]
+    cookies = ["ch04", "ch05", "ch06", "ch10", "ch14", "ch17", "ch21"]
     # TODO: Add Halloween costumes
     for subdir, dirs, files in os.walk("Patch"):
         for file in files:
