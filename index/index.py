@@ -87,7 +87,7 @@ def unpack_texture(file, path, suffix):
             cropped = im.crop((int(float(rectlist[0])), int(float(rectlist[1])), int(float(rectlist[0])) + width, int(float(rectlist[1])) + height))
             cropped = trim(cropped)
             if frame["rotated"]:
-                cropped = cropped.transpose(Image.ROTATE_90)
+                cropped = cropped.transpose(Image.Transpose.ROTATE_90)
             if not os.path.exists(os.path.split(path)[0]):
                 os.makedirs(os.path.split(path)[0])
             cropped.save(path + output)
@@ -333,11 +333,11 @@ for subdir, dirs, files in os.walk("ccb"):
                     index["cookies"]["ovenbreak"][cookie]["gameplay"][happy]["original_height"] = 248
                     if verbosity > 0: print(happy)
             # Devsisters Co., Ltd. *laugh track*
-            if path == "ccb/resources-phonehd/cookie0033z02_state.png":
+            if file == "cookie0033z02_state.png":
                 sad, size, _ = unpack_texture(path, "img/cookies/" + cookie + "/", "_san_ani00.png")
-            elif path == "ccb/resources-phonehd/cookie0043_state.png":
+            elif file == "cookie0043_state.png":
                 sad, size, _ = unpack_texture(path, "img/cookies/" + cookie + "/", "_ani00.png")
-            elif path == "ccb/resources-phonehd/cookie0038z01_state.png" or path == "ccb/resources-phonehd/cookie0056z01_state.png" or path == "ccb/resources-phonehd/cookie0144_state.png" or path == "ccb/resources-phonehd/cookie0144z01_state.png" or path == "ccb/resources-phonehd/cookie0144z02_state.png": # Duplicate poses
+            elif file == "cookie0038z01_state.png" or file == "cookie0056z01_state.png" or file == "cookie0144_state.png" or file == "cookie0144z01_state.png" or file == "cookie0144z02_state.png" or file == "cookie0203_state_sad_ani00.png" or file == "cookie0203z01_state_sad_ani00.png": # Duplicate poses
                 continue
             else:
                 sad, size, _ = unpack_texture(path, "img/cookies/" + cookie + "/", "_sad_ani00.png")
@@ -384,7 +384,7 @@ for subdir, dirs, files in os.walk("ccb"):
             im = im.convert("RGB") # Not converting images to RGB leads PIL to only use nearest neighbor scaling, which doesn't look nearly as good
             height_percent = 320 / float(im.size[1])
             width_size = int((float(im.size[0]) * float(height_percent)))
-            im = im.resize((width_size, 320), PIL.Image.BILINEAR)
+            im = im.resize((width_size, 320), PIL.Image.Resampling.BILINEAR)
             if im.size[0] != 454:
                 left = (im.size[0] - 454) / 2
                 im = im.crop((left, 0, left + 454, im.size[1]))
@@ -404,7 +404,7 @@ for subdir, dirs, files in os.walk("ccb"):
                 im = im.convert("RGB")
                 height_percent = 320 / float(im.size[1])
                 width_size = int((float(im.size[0]) * float(height_percent)))
-                im = im.resize((width_size, 320), PIL.Image.BILINEAR)
+                im = im.resize((width_size, 320), PIL.Image.Resampling.BILINEAR)
                 if im.size[0] != 454:
                     left = (im.size[0] - 454) / 2
                     im = im.crop((left, 0, left + 454, im.size[1]))
@@ -435,11 +435,11 @@ for subdir, dirs, files in os.walk("image/cookie/resources-common"):
                     if verbosity > 1: print(plist_dict["framelist"][animation["FrameList"][0]] + " (skipped)")
                     continue
                 if key == "fever start 3":
-                    if cookie in ["cookie0061", "cookie0066", "cookie0067", "cookie0068", "cookie0108", "cookie0112", "cookie0125", "cookie0134", "cookie0140", "cookie0143", "cookie0154", "cookie0156", "cookie0161", "cookie0169", "cookie0171", "cookie0184", "cookie0185", "cookie0195", "cookie0196", "cookie0522"]:
+                    if cookie in ["cookie0061", "cookie0066", "cookie0067", "cookie0068", "cookie0108", "cookie0112", "cookie0125", "cookie0134", "cookie0140", "cookie0143", "cookie0154", "cookie0156", "cookie0161", "cookie0169", "cookie0171", "cookie0184", "cookie0185", "cookie0195", "cookie0196", "cookie0203", "cookie0206", "cookie0208", "cookie0209", "cookie0216", "cookie0217", "cookie0218", "cookie0221", "cookie0224", "cookie0233", "cookie0522"]:
                         frame = 2
                     elif cookie in ["cookie0109", "cookie0137", "cookie0145", "cookie0182"]:
                         frame = 0
-                    elif cookie in ["cookie0151", "cookie0157"]:
+                    elif cookie in ["cookie0151", "cookie0157", "cookie0229"]:
                         frame = 3
                     else:
                         frame = 1
@@ -454,7 +454,7 @@ for subdir, dirs, files in os.walk("image/cookie/resources-common"):
                         im.save("img/cookies/" + cookie + "/" + output)
                         size = im.size
                     index["cookies"]["ovenbreak"][cookie]["gameplay"][output] = dict()
-                    if output == "cookie0127x2_0087.png" or output == "cookie0127z01x2_0087.png":
+                    if output == "cookie0127x2_0087.png" or output == "cookie0127z01x2_0087.png" or output == "cookie0204_secondx2_0093.png" or output == "cookie0204_secondx2_0103.png":
                         index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["width"] = round(size[0] / size[1] * 320)
                         index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["height"] = 320
                     else:
@@ -488,7 +488,7 @@ if os.path.exists("effects.json"):
                     index["cookies"]["ovenbreak"][cookie]["gameplay"][output] = dict()
                     index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["width"] = size[0]
                     index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["height"] = size[1]
-                    if i[:10] == "cookie0061" and key != "sleigh":
+                    if cookie == "cookie0061" and key != "sleigh":
                         if i == "cookie0061z01_effect_aniinfo.plist":
                             index["cookies"]["ovenbreak"][cookie]["gameplay"][output]["original_height"] = 364
                         else:
@@ -507,7 +507,7 @@ if os.path.exists("obstacles.json"):
                 if not file.endswith(".plist"):
                     continue
                 path = os.path.join(subdir, file).replace("\\", "/")
-                root = ElementTree.fromstring(open(path, "r").read())
+                root = ElementTree.fromstring(open(path, "r").read().replace(chr(8), ""))
                 plist_dict = tree_to_dict(root[0])
                 for key in plist_dict["frames"].keys():
                     if key in obstacles:
@@ -527,7 +527,7 @@ if os.path.exists("obstacles.json"):
                             else:
                                 index["props"]["obstacle_" + obstacles[key]][key]["width"] = size[0]
                                 index["props"]["obstacle_" + obstacles[key]][key]["height"] = size[1]
-                            print(output)
+                            if verbosity > 0: print(output)
 
 # Add bonustime backgrounds
 for subdir, dirs, files in os.walk("image/map_bg/resources-common"):
@@ -546,13 +546,12 @@ for subdir, dirs, files in os.walk("image/map_bg/resources-common"):
                 im = im.convert("RGB")
                 height_percent = 320 / float(size[1])
                 width_size = int((float(size[0]) * float(height_percent)))
-                im = im.resize((width_size, 320), PIL.Image.BILINEAR)
+                im = im.resize((width_size, 320), PIL.Image.Resampling.BILINEAR)
                 left = (im.size[0] - 454) / 2
                 im = im.crop((left, 0, left + 454, im.size[1]))
                 im.save("img/backgrounds/" + output)
                 index["backgrounds"]["game"].append(output)
                 if verbosity > 0: print(output)
-
 
 # Add Kingdom backgrounds
 for i in range(1, 18):
@@ -637,7 +636,7 @@ if os.path.exists("Patch"):
     ch = re.compile("Patch/kakaoBC_SD/ch[0-9]{2}(_.+)?x2\\.png")
     intros = ["intro_epN04.png", "intro_epN05.png", "intro_epS01.png", "intro_epS02.png"]
     intro_suffixes = {"intro_epN04.png": "intro_epN04_back.png", "intro_epN05.png": "intro_epN05_bg.png", "intro_epS01.png": "intro_epS01_bg.png", "intro_epS02.png": "intro_epS02_1.png"}
-    cookies = ["ch04", "ch05", "ch06", "ch10", "ch14", "ch21", "ch22"]
+    cookies = ["ch04", "ch05", "ch06", "ch10", "ch14", "ch21"]
     # TODO: Add Halloween costumes
     for subdir, dirs, files in os.walk("Patch"):
         for file in files:
@@ -715,7 +714,7 @@ if os.path.exists("Patch"):
                     im = im.convert("RGB")
                     height_percent = 320 / float(size[1])
                     width_size = int((float(size[0]) * float(height_percent)))
-                    im = im.resize((width_size, 320), PIL.Image.BILINEAR)
+                    im = im.resize((width_size, 320), PIL.Image.Resampling.BILINEAR)
                     left = (im.size[0] - 454) / 2
                     im = im.crop((left, 0, left + 454, im.size[1]))
                     im.save("img/backgrounds/" + output)
@@ -751,7 +750,7 @@ if os.path.exists("cookiewars"):
             path = os.path.join(subdir, file).replace("\\", "/")
             im = Image.open(path)
             if file.startswith("icon_big"):
-                im = im.resize((256, 224), PIL.Image.BILINEAR)
+                im = im.resize((256, 224), PIL.Image.Resampling.BILINEAR)
             height = im.size[1]
             im = trim(im)
             im.save("img/cookies/wars/" + file)
@@ -939,7 +938,7 @@ for i in sorted(index["cookies"]["ovenbreak"].keys()):
     for i2 in sorted(cookies["gameplay"].keys()):
         if not i2.startswith(i + "z") and i2 not in sorted_cookies:
             sorted_cookies[i2] = cookies["gameplay"][i2]
-    for i2 in chain(range(1, 8), [91], [99]):
+    for i2 in chain(range(1, 9), [91], [99]):
         costume = "z" + str(i2).rjust(2, "0")
         for suffix in suffixes:
             if i + costume + suffix in cookies["gameplay"]:
@@ -1020,11 +1019,24 @@ for i in sorted(index["cookies"]["kingdom"].keys()):
         if i2 != "name":
             del sorted_cookies[i2]["original_height"]
     sorted_index["cookies"]["kingdom"][i] = sorted_cookies
+bts = sorted_index["cookies"]["kingdom"]["bts"]
+del sorted_index["cookies"]["kingdom"]["bts"]
+sorted_index["cookies"]["kingdom"]["bts"] = bts
+disney = sorted_index["cookies"]["kingdom"]["disney"]
+del sorted_index["cookies"]["kingdom"]["disney"]
+sorted_index["cookies"]["kingdom"]["disney"] = disney
 npcs = sorted_index["cookies"]["kingdom"]["npcs"]
 del sorted_index["cookies"]["kingdom"]["npcs"]
 sorted_index["cookies"]["kingdom"]["npcs"] = npcs
+aprilfools2022 = sorted_index["cookies"]["kingdom"]["april_fools_2022"]
+del sorted_index["cookies"]["kingdom"]["april_fools_2022"]
+sorted_index["cookies"]["kingdom"]["april_fools_2022"] = aprilfools2022
 sorted_index["cookies"]["kingdom"]["npcs"]["cakehound_crowned.png"]["width"] = 140
 sorted_index["cookies"]["kingdom"]["npcs"]["cakehound_crowned.png"]["height"] = 158
+sorted_index["cookies"]["kingdom"]["npcs"]["canele_default.png"]["width"] = 187
+sorted_index["cookies"]["kingdom"]["npcs"]["canele_default.png"]["height"] = 221
+sorted_index["cookies"]["kingdom"]["npcs"]["millefeuille_default.png"]["width"] = 132
+sorted_index["cookies"]["kingdom"]["npcs"]["millefeuille_default.png"]["height"] = 180
 sorted_index["cookies"]["kingdom"]["npcs"]["stinkeyetortuca.png"]["width"] = 255
 sorted_index["cookies"]["kingdom"]["npcs"]["stinkeyetortuca.png"]["height"] = 230
 sorted_index["pets"] = sorted(index["pets"])

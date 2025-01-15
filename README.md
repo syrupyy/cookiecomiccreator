@@ -10,7 +10,7 @@ If you want this for something else or would prefer to use your own assets, you 
 4. Drag the asset folders in there to combine them with your data download and you're done combining the original OvenBreak files!
 5. Optional: To get Cookie Run for LINE/Kakao sprites, download [쿠키런 for Kakao](https://play.google.com/store/apps/details?id=com.devsisters.CookieRunForKakao) and log in, then complete the data download and use the same steps above to copy the "Patch" folder from your emulator's data into the download folder. Once that's done, open the APK and merge the contents of assets/ into your Patch folder in case of a few extra missing files. If asked what to do with duplicate files, choose "Skip".
 6. Put the contents of index/ (index.py, forbidden.txt, kingdom/, etc.) in your download folder (the one with ccb/, image/ and etc).
-7. For Kingdom files, [download the folder of cookies from the Kingdom fankit](https://www.dropbox.com/sh/pkmdawhvj08rmxf/AAAT2UqHoRw1gfw239xaLiz1a/03.%20Cookie?dl=0) and extract its contents to the kingdom/ folder.
+7. For Kingdom files, [download the folder of cookies from the Kingdom fankit](https://www.dropbox.com/sh/pkmdawhvj08rmxf/AAAT2UqHoRw1gfw239xaLiz1a/03.%20Cookie?dl=0) and extract its contents to the kingdom/ folder. If asked what to do with duplicate files, choose "Skip".
 8. Install Python 3.x if you don't already have it.
 9. Run index.py, usually by going into said download folder in the command line and running `python3 index.py`
 10. Wait for it to make the files.

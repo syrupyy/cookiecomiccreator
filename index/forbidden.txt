@@ -19,6 +19,7 @@ bg_loading_friendshipIdol.png
 bg_loading_guildLeague.png
 bg_loading_gymbreak.png
 bg_loading_specialEpisodeCoin.png
+bg_loading_sportsLeague.png
 bg_loading_stageClearMode.png
 bg_loading_storyRunMode02.png
 bg_lobby_skin4.png
@@ -73,7 +74,6 @@ cookie0016z02_ghostx2_0041.png
 cookie0016z02x2_0041.png
 cookie0016z03_ghostx2_0041.png
 cookie0016z03x2_0041.png
-cookie0017_head.png
 cookie0018x2_0061.png
 cookie0019x2_0041.png
 cookie0019z01x2_0041.png
@@ -86,6 +86,7 @@ cookie0023z02x2_0041.png
 cookie0024_womanx2_0045.png
 cookie0024z01_womanx2_0045.png
 cookie0024z02_womanx2_0045.png
+cookie0024z03_womanx2_0045.png
 cookie0027x2_0073.png
 cookie0027z01x2_0073.png
 cookie0027z02x2_0073.png
@@ -124,8 +125,11 @@ cookie0041z01_shop_exhausted.png
 cookie0041z01x2_0068.png
 cookie0041z02_shop_exhausted.png
 cookie0041z02x2_0068.png
+cookie0041z03_shop_exhausted.png
+cookie0041z03x2_0068.png
 cookie0042x2_0040.png
 cookie0042z01x2_0040.png
+cookie0042z02x2_0040.png
 cookie0043x2_0105.png
 cookie0043z01x2_0105.png
 cookie0044_state_happy_ani00.png
@@ -137,6 +141,7 @@ cookie0046x2_0032.png
 cookie0046z01x2_0041.png
 cookie0046z02x2_0032.png
 cookie0047x2_0061.png
+cookie0047z01x2_0061.png
 cookie0048x2_0041.png
 cookie0048z02x2_0041.png
 cookie0050x2_0012.png
@@ -186,6 +191,7 @@ cookie0056z02_shop_exhausted.png
 cookie0056z02x2_0040.png
 cookie0057_horsex2_0026.png
 cookie0057z01_horsex2_0026.png
+cookie0058z02x2_aniinfo.plist
 cookie0059x2_0040.png
 cookie0059x2_0061.png
 cookie0059x2_0070.png
@@ -225,7 +231,6 @@ cookie0063z04_umbrellax2_0041.png
 cookie0063z04_umbrellax2_0046.png
 cookie0064_dino_z01x2_aniinfo.plist
 cookie0064_z01x2_aniinfo.plist
-cookie0066_stand.png
 cookie0066x2_0061.png
 cookie0067x2_0007.png
 cookie0067z01x2_0007.png
@@ -421,7 +426,6 @@ cookie0161_secondx2_0036.png
 cookie0161x2_0040.png
 cookie0162x2_0040.png
 cookie0163_spiderx2_0033.png
-cookie0163_stand.png
 cookie0163x2_0063.png
 cookie0163z01x2_0063.png
 cookie0164x2_0086.png
@@ -455,11 +459,11 @@ cookie0175x2_0121.png
 cookie0175x2_0131.png
 cookie0175x2_0141.png
 cookie0175x2_0151.png
-cookie0176_stand.png
 cookie0176x2_0046.png
 cookie0178_extrax2_0036.png
 cookie0178x2_0041.png
 cookie0181x2_0078.png
+cookie0181z01x2_0078.png
 cookie0183_revivalx2_0040.png
 cookie0183_revivalx2_0041.png
 cookie0183_revivalx2_0066.png
@@ -469,6 +473,15 @@ cookie0183x2_0040.png
 cookie0183x2_0041.png
 cookie0183x2_0082.png
 cookie0183x2_0087.png
+cookie0183z01_revivalx2_0040.png
+cookie0183z01_revivalx2_0041.png
+cookie0183z01_revivalx2_0066.png
+cookie0183z01_revivalx2_0081.png
+cookie0183z01_revivalx2_0087.png
+cookie0183z01x2_0040.png
+cookie0183z01x2_0041.png
+cookie0183z01x2_0082.png
+cookie0183z01x2_0087.png
 cookie0186x2_0040.png
 cookie0186z01x2_0040.png
 cookie0187x2_0028.png
@@ -478,8 +491,17 @@ cookie0189x2_0040.png
 cookie0189x2_0041.png
 cookie0190x2_0082.png
 cookie0190z01x2_0082.png
+cookie0200x2_0046.png
+cookie0200x2_0111.png
+cookie0201x2_0061.png
+cookie0201z01x2_0061.png
+cookie0202x2_0102.png
+cookie0204_secondx2_0108.png
+cookie0206x2_0072.png
+cookie0207x2_0048.png
 cookie0503x2_0096.png
 cookie0503z01x2_0096.png
+cookie0503_serious.png
 cookie0522_secondx2_0001.png
 cookie0522x2_0040.png
 cookie0522x2_0073.png
