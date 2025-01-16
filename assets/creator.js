@@ -30,6 +30,56 @@ var cc = {
 
 // Define functions
 
+// Polyfills
+
+// ChildNode.after() polyfill
+// This is kinda overkill, but it's fine
+// https://vanillajstoolkit.com/polyfills/after/
+(function(elem) {
+	// Check if element is a node
+	// https://github.com/Financial-Times/polyfill-service
+	var isNode = function(object) {
+		if(typeof Node === "function") return object instanceof Node;
+		return object && typeof object === "object" && object.nodeName && object.nodeType >= 1 && object.nodeType <= 12;
+	};
+
+	// Add after() method to prototype
+	for(var i = 0; i < elem.length; i++) {
+		if(!window[elem[i]] || "after" in window[elem[i]].prototype) continue;
+		window[elem[i]].prototype.after = function() {
+			var argArr = Array.prototype.slice.call(arguments);
+			var docFrag = document.createDocumentFragment();
+			for(var n = 0; n < argArr.length; n++) docFrag.appendChild(isNode(argArr[n]) ? argArr[n] : document.createTextNode(String(argArr[n])));
+			this.parentNode.insertBefore(docFrag, this.nextSibling);
+		};
+	}
+})(["Element", "CharacterData", "DocumentType"]);
+
+// HTMLCanvasElement.toBlob() polyfill
+// https://gist.github.com/salzhrani/02a6e807f24785a4d34b
+if(!HTMLCanvasElement.prototype.toBlob) Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", { 
+    value: function(callback, type, quality) {
+        var bin = atob(this.toDataURL(type, quality).split(',')[1]);
+        var len = bin.length;
+        var len32 = len >> 2;
+        var a8 = new Uint8Array(len);
+        var a32 = new Uint32Array(a8.buffer, 0, len32);
+        for(var i = 0, j = 0; i < len32; i++) a32[i] = bin.charCodeAt(j++) | bin.charCodeAt(j++) << 8 | bin.charCodeAt(j++) << 16 | bin.charCodeAt(j++) << 24;
+        var tailLength = len & 3;
+        while(tailLength--) a8[j] = bin.charCodeAt(j++);
+        callback(new Blob([a8], {"type": type || "image/png"}));
+    }
+});
+
+// Object.entries() polyfill
+if(!Object.entries) Object.entries = function(object) {
+    var props = Object.keys(object);
+    var i = props.length;
+    var result = new Array(i);
+    while(i--) result[i] = [props[i], object[props[i]]];
+    return result;
+};
+
 // Clone an object
 cc.cloneObject = function(object, stringify) {
     if(object instanceof Element) {
@@ -155,7 +205,7 @@ cc.drawTextbox = function() {
                 cc.textCtx.fillStyle = "#000";
                 cc.textCtx.font = "Bold 18px CookieRun, Open Sans, sans-serif";
                 inputLines.forEach(function(line, index) {
-                    if(cc.tail !== null && cc.tail.startsWith("top-")) cc.textCtx.fillText(line, 19, 45 + (24 * index));
+                    if(cc.tail !== null && cc.tail.indexOf("top-") === 0) cc.textCtx.fillText(line, 19, 45 + (24 * index));
                     else cc.textCtx.fillText(line, 19, 28 + (22 * index));
                 });
 
@@ -181,7 +231,7 @@ cc.makeUndoPoint = function() {
 };
 
 // Print a page of sprites
-cc.pagify = function(sprites, id, offset = 0) {
+cc.pagify = function(sprites, id, offset) {
     var className = id.slice(0, -1);
     var newOffset = offset + (id === "backgrounds" ? 12 : 20);
     if(sprites.length === 2) {
@@ -196,7 +246,7 @@ cc.pagify = function(sprites, id, offset = 0) {
         previous.id = "previous-page";
         if(offset === 0) previous.disabled = true;
         else previous.onclick = function() {
-            cc.pagify(sprites, id, id === "cookies" && key.startsWith("cookie") ? cc.pageHistory[0] : offset - (id === "backgrounds" ? 12 : 20));
+            cc.pagify(sprites, id, id === "cookies" && key.indexOf("cookie") === 0 ? cc.pageHistory[0] : offset - (id === "backgrounds" ? 12 : 20));
             cc.pageHistory.shift();
         };
         cc.images.appendChild(previous);
@@ -262,7 +312,9 @@ cc.pagify = function(sprites, id, offset = 0) {
                         }
                     };
                     var reader = new FileReader();
-                    reader.onload = () => img.src = reader.result;
+                    reader.onload = function() {
+                        img.src = reader.result;
+                    };
                     reader.readAsDataURL(file.files[0]);
                 }
             };
@@ -275,9 +327,9 @@ cc.pagify = function(sprites, id, offset = 0) {
     var ovenbreakOffset = offset;
     entries.forEach(function(sprite, i) {
         if(sprite[0] === "name") return;
-        if(id === "cookies" && key.startsWith("cookie")) {
+        if(id === "cookies" && key.indexOf("cookie") === 0) {
             if(i < ovenbreakOffset) return;
-            if(sprite[0].endsWith("_shop.png") && i - ovenbreakOffset > 3) {
+            if(sprite[0].indexOf("_shop.png") === sprite[0].length - 9 && i - ovenbreakOffset > 3) {
                 if(i - ovenbreakOffset < 10) {
                     ovenbreakOffset = i;
                     cc.images.appendChild(document.createElement("hr"));
@@ -359,7 +411,7 @@ cc.pagify = function(sprites, id, offset = 0) {
             cc.images.appendChild(document.createElement("br"));
             var previousClone = previous.cloneNode(true);
             if(!previous.disabled) previousClone.onclick = function() {
-                cc.pagify(sprites, id, id === "cookies" && key.startsWith("cookie") ? cc.pageHistory[0] : offset - (id === "backgrounds" ? 12 : 20));
+                cc.pagify(sprites, id, id === "cookies" && key.indexOf("cookie") === 0 ? cc.pageHistory[0] : offset - (id === "backgrounds" ? 12 : 20));
                 cc.pageHistory.shift();
             };
             cc.images.appendChild(previousClone);
@@ -375,9 +427,13 @@ cc.pagify = function(sprites, id, offset = 0) {
             previous.remove();
         }
     }
-    if(sprites.length === 2 && ["dark_cacao", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
+    if(sprites.length === 2 && ["dark_cacao", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].indexOf(sprites[0]) !== -1) {
         var p = document.createElement("p");
         p.innerHTML = cc.translateText("(Sprites provided by <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>)");
+        cc.images.appendChild(p);
+    } else if(sprites.length === 2 && sprites[0] === "sherbet") {
+        var p = document.createElement("p");
+        p.innerHTML = cc.translateText("Cookie Comic Creator doesn't support putting folders in folders, so you'll have to go to the NPCs section to find his old sprites instead. Or just use the new site. Sorry");
         cc.images.appendChild(p);
     }
 };
@@ -394,7 +450,9 @@ cc.render = function() {
     cc.ctx.strokeStyle = "black";
     cc.ctx.imageSmoothingEnabled = true;
     cc.ctx.imageSmoothingQuality = "high";
-    cc.comic.backgrounds.forEach((background) => cc.ctx.drawImage(background.img, background.x, background.y));
+    cc.comic.backgrounds.forEach(function(background) {
+        cc.ctx.drawImage(background.img, background.x, background.y);
+    });
     for(var i = 0; i < cc.comic.columns; i++) for(var i2 = 0; i2 < cc.comic.rows; i2++) {
         var canvas = document.createElement("canvas");
         var ctx = canvas.getContext("2d");
@@ -448,7 +506,7 @@ cc.render = function() {
     cc.ctx.fillStyle = "black";
     cc.ctx.textAlign = "left";
     if(cc.selected !== null && cc.selected[0] === -1) {
-        if(cc.selected[1].src.endsWith("/bg_none.png")) cc.ctx.fillText(cc.translateText("Select a background to delete"), 10, cc.canvas.height - 20);
+        if(cc.selected[1].src.indexOf("/bg_none.png") === cc.selected[1].src.length - 12) cc.ctx.fillText(cc.translateText("Select a background to delete"), 10, cc.canvas.height - 20);
         else cc.ctx.fillText(cc.translateText("Select a panel to place the background"), 10, cc.canvas.height - 20);
     } else if(cc.selected !== null && cc.selected[0] === -2) cc.ctx.fillText(cc.translateText("Select a panel to copy"), 10, cc.canvas.height - 20);
     else if(cc.selected !== null && cc.selected[0] === -3) cc.ctx.fillText(cc.translateText("Select a panel to paste over"), 10, cc.canvas.height - 20);
@@ -526,6 +584,8 @@ cc.translateText = function(text) {
             return "Siguiente";
         case "(Sprites provided by <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>)":
             return "(Los sprites se proporcionaron por <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">la wiki de Cookie Run: Kingdom</a>)";
+        case "Cookie Comic Creator doesn't support putting folders in folders, so you'll have to go to the NPCs section to find his old sprites instead. Or just use the new site. Sorry":
+            return "Cookie Comic Creator no admite la colocación de carpetas en carpetas, así que tendrás que ir a la sección de NPCs para encontrar sus antiguos sprites. O simplemente utilizar el nuevo sitio. Lo siento";
         case "Select a background to delete":
             return "¿Qué fondo quieres borrar?";
         case "Select a panel to place the background":
@@ -571,6 +631,8 @@ cc.translateText = function(text) {
             return "다음 페이지로 가기";
         case "(Sprites provided by <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>)":
             return "스프라이트는 <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>에서 제공했습니다.";
+        case "Cookie Comic Creator doesn't support putting folders in folders, so you'll have to go to the NPCs section to find his old sprites instead. Or just use the new site. Sorry":
+            return "Cookie Comic Creator는 폴더에 폴더를 넣는 기능을 지원하지 않으므로 그의 오래된 스프라이트를 찾으려면 NPC 섹션으로 이동해야 합니다. 또는 새 사이트를 사용하십시오. 죄송합니다";
         case "Select a background to delete":
             return "삭제할 배경 선택";
         case "Select a panel to place the background":
@@ -683,7 +745,7 @@ document.onmouseup = document.ontouchend = function(event) {
                     cc.comic.backgrounds.forEach(function(background, i) {
                         if(background.x === backgroundX && background.y === backgroundY) cc.comic.backgrounds.splice(i, 1);
                     });
-                    if(!cc.selected[1].src.endsWith("/bg_none.png")) cc.comic.backgrounds.push({"img": cc.selected[1], "x": backgroundX, "y": backgroundY});
+                    if(cc.selected[1].src.indexOf("/bg_none.png") !== cc.selected[1].src.length - 12) cc.comic.backgrounds.push({"img": cc.selected[1], "x": backgroundX, "y": backgroundY});
                     cc.selected = null;
                     cc.makeUndoPoint();
                 } else if(cc.selected !== null && cc.selected[0] === -2) {
@@ -752,8 +814,8 @@ document.onpaste = cc.canvas.ondrop = function(event) {
         if(event.clipboardData.files.length === 0) return;
         files = event.clipboardData.files;
     }
-    Array.from(files).forEach(function(file) {
-        if(file.type.startsWith("image/")) {
+    Array.prototype.slice.call(files).forEach(function(file) {
+        if(file.type.indexOf("image/") === 0) {
             event.preventDefault();
             var img = new Image();
             img.onload = function() {
@@ -778,7 +840,9 @@ document.onpaste = cc.canvas.ondrop = function(event) {
                 cc.render();
             };
             var reader = new FileReader();
-            reader.onload = () => img.src = reader.result;
+            reader.onload = function() {
+                img.src = reader.result;
+            };
             reader.readAsDataURL(file);
         }
     });
@@ -824,14 +888,18 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                     case "a-z":
                         if(cc.openTabs[0] === "ovenbreak") var wars = sprites.splice(sprites.length - 1, 1)[0];
                         var npcs = sprites.splice(sprites.length - 1, 1)[0];
-                        sprites.sort((a, b) => a[1]["name"].localeCompare(b[1]["name"]));
+                        sprites.sort(function(a, b) {
+                            return a[1]["name"].localeCompare(b[1]["name"]);
+                        });
                         sprites.push(npcs);
                         if(cc.openTabs[0] === "ovenbreak") sprites.push(wars);
                         break;
                     case "z-a":
                         if(cc.openTabs[0] === "ovenbreak") var wars = sprites.splice(sprites.length - 1, 1)[0];
                         var npcs = sprites.splice(sprites.length - 1, 1)[0];
-                        sprites.sort((a, b) => b[1]["name"].localeCompare(a[1]["name"]));
+                        sprites.sort(function(a, b) {
+                            return b[1]["name"].localeCompare(a[1]["name"]);
+                        });
                         sprites.push(npcs);
                         if(cc.openTabs[0] === "ovenbreak") sprites.push(wars);
                         break;
@@ -881,14 +949,14 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                     }
                     img.onclick = function() {
                         if(element.id === "cookys") {
-                            if(cc.cookieHistory[cc.openTabs[0]].includes(sprite[0])) cc.cookieHistory[cc.openTabs[0]].splice(cc.cookieHistory[cc.openTabs[0]].indexOf(sprite[0]), 1);
+                            if(cc.cookieHistory[cc.openTabs[0]].indexOf(sprite[0]) !== -1) cc.cookieHistory[cc.openTabs[0]].splice(cc.cookieHistory[cc.openTabs[0]].indexOf(sprite[0]), 1);
                             cc.cookieHistory[cc.openTabs[0]].push(sprite[0]);
                         }
                         if(cc.comic.sprites.length) cc.title.className = "none";
                         document.getElementById("tabs").className = "none";
                         document.getElementById("back").className = element.id;
                         document.getElementById("options").className = "none";
-                        cc.pagify(sprite, element.id === "cookys" ? "cookies" : element.id);
+                        cc.pagify(sprite, element.id === "cookys" ? "cookies" : element.id, 0);
                     };
                     cc.images.appendChild(img);
                     if(element.id === "cookys" && document.getElementById("sort").value === "recent" && sprite[0] === cc.cookieHistory[cc.openTabs[0]][0]) cc.images.appendChild(document.createElement("br"));
@@ -908,7 +976,7 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                     document.getElementById("tabs").className = "";
                     document.getElementById("options").className = "none";
                 }
-                cc.pagify(element.id === "backgrounds" ? (cc.openTabs[1] === "kingdom" ? index.backgrounds.basic : index.backgrounds.game) : index.pets, element.id);
+                cc.pagify(element.id === "backgrounds" ? (cc.openTabs[1] === "kingdom" ? index.backgrounds.basic : index.backgrounds.game) : index.pets, element.id, 0);
             }
             Array.prototype.forEach.call(document.getElementsByClassName("opened"), function(opened) {
                 opened.className = "openable";
@@ -1101,29 +1169,28 @@ document.getElementById("share").onclick = function() {
             data.append("comic", JSON.stringify(cc.cloneObject(cc.comic, true), null, null));
             if(cc.comic.title === "") data.append("image", blob, "comic.png");
             else data.append("image", blob, cc.formatFilename(cc.comic.title) + ".png");
-            fetch("https://cookiecomiccreator.co/share", {
-                method: "POST",
-                body: data
-            }).then(function(response) {
-                response.text().then(function(text) {
-                    cc.render();
-                    document.getElementById("share").disabled = false;
-                    document.getElementById("share").textContent = cc.translateText("Share");
-                    if(!response.ok) {
-                        if(text.length) alert(cc.translateText("An error occurred while trying to share the comic. (") + text + ")");
-                        else alert(cc.translateText("An error occurred while trying to share the comic. (") + response.status + ")");
-                    } else {
-                        document.getElementById("share").className = "none";
-                        document.getElementById("share-output").className = "";
-                        document.getElementById("share-link").href = "https://" + text;
-                        document.getElementById("share-link").textContent = text;
-                        document.getElementById("tweet-link").href = "https://twitter.com/intent/tweet?text=%23cookiecomiccreator%20%23cookierun&url=https%3A%2F%2F" + encodeURIComponent(text);
-                        document.getElementById("facebook-link").href = "https://www.facebook.com/sharer/sharer.php?display=page&u=https%3A%2F%2F" + encodeURIComponent(text);
-                        document.getElementById("tumblr-link").href = "https://www.tumblr.com/widgets/share/tool?posttype=photo&tags=cookie%20comic%20creator%2C%20cookie%20run&canonicalUrl=https%3A%2F%2Fcookiecomiccreator.co%2F&content=https%3A%2F%2F" + encodeURIComponent(text);
-                        cc.saved = true;
-                    }
-                });
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://cookierun.comic.studio/api/share");
+            xhr.addEventListener("readystatechange", function() {
+                if(this.readyState !== 4) return;
+                cc.render();
+                document.getElementById("share").disabled = false;
+                document.getElementById("share").textContent = cc.translateText("Share");
+                if(this.status !== 200) {
+                    if(this.responseText.length) alert(cc.translateText("An error occurred while trying to share the comic. (") + this.responseText + ")");
+                    else alert(cc.translateText("An error occurred while trying to share the comic. (") + this.status + ")");
+                } else {
+                    document.getElementById("share").className = "none";
+                    document.getElementById("share-output").className = "";
+                    document.getElementById("share-link").href = "https://" + this.responseText;
+                    document.getElementById("share-link").textContent = this.responseText;
+                    document.getElementById("tweet-link").href = "https://twitter.com/intent/tweet?text=%23cookiecomiccreator%20%23cookierun&url=https%3A%2F%2F" + encodeURIComponent(this.responseText);
+                    document.getElementById("facebook-link").href = "https://www.facebook.com/sharer/sharer.php?display=page&u=https%3A%2F%2F" + encodeURIComponent(this.responseText);
+                    document.getElementById("tumblr-link").href = "https://www.tumblr.com/widgets/share/tool?posttype=photo&tags=cookie%20comic%20creator%2C%20cookie%20run&canonicalUrl=https%3A%2F%2Fcookiecomiccreator.co%2F&content=https%3A%2F%2F" + encodeURIComponent(this.responseText);
+                    cc.saved = true;
+                }
             });
+            xhr.send(data);
         });
     } catch(err) {
         document.getElementById("share").disabled = false;
@@ -1334,7 +1401,9 @@ document.getElementById("custom").onclick = function() {
                 }
             };
             var reader = new FileReader();
-            reader.onload = () => img.src = reader.result;
+            reader.onload = function() {
+                img.src = reader.result;
+            };
             reader.readAsDataURL(file.files[0]);
         }
     });
@@ -1350,7 +1419,7 @@ document.getElementById("search").oninput = function() {
 
 // Handle sort selector
 document.getElementById("sort").onchange = function() {
-    if(!cc.sortHistory.includes(this.value)) cc.sortHistory.push(this.value);
+    if(cc.sortHistory.indexOf(this.value) === -1) cc.sortHistory.push(this.value);
     if(cc.sortHistory.length === 5) {
         var option = document.createElement("option");
         option.value = "secret";
@@ -1380,6 +1449,6 @@ if(window.innerWidth < 980) {
     document.getElementById("remove-row").disabled = false;
 }
 index.backgrounds["game"].unshift("bg_none.png");
-if(document.body.className === "" && document.cookie.includes("theme=")) document.body.className = document.cookie.split("theme=")[1].split(";")[0];
+if(document.body.className === "" && document.cookie.indexOf("theme=") !== -1) document.body.className = document.cookie.split("theme=")[1].split(";")[0];
 cc.render();
 cc.makeUndoPoint();
