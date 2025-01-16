@@ -846,7 +846,7 @@ Array.prototype.forEach.call(document.getElementsByClassName("openable"), functi
                     case "secret":
                         var bestSprite = null;
                         sprites.every(function(sprite) {
-                            if(sprite[0] !== "cookie0157" && sprite[0] !== "espresso") return true;
+                            if(sprite[0] !== "cookie0157" && sprite[0] !== "cream_unicorn") return true;
                             bestSprite = sprite;
                         });
                         var length = sprites.length;
