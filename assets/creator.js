@@ -19,6 +19,9 @@ var cc = {
     holding: false,
     mobile: false,
     saved: false,
+    canAscend: false,
+    hasBananaPeel: false,
+    numbers: "",
     language: document.documentElement.getAttribute("lang"),
     canvas: document.getElementById("comic"),
     ctx: document.getElementById("comic").getContext("2d"),
@@ -51,7 +54,7 @@ cc.drawTextbox = function() {
     var inputWords = document.getElementById("textbox").value.split(" ");
     var inputLines = [""];
     var currentLine = 0;
-    cc.textCtx.font = "Bold 18px CookieRun, Open Sans, sans-serif";
+    cc.textCtx.font = "Bold 18px CookieRun, Comic Sans MS, Open Sans, sans-serif";
 
     // Calculate the length of each line for splitting purposes
     inputWords.forEach(function(word) {
@@ -72,7 +75,7 @@ cc.drawTextbox = function() {
     cc.textCanvas.height = inputLines.length * 22 + 41;
     cc.textCanvas.width = 0;
     inputLines.forEach(function(line) {
-        cc.textCtx.font = "Bold 18px CookieRun, Open Sans, sans-serif";
+        cc.textCtx.font = "Bold 18px CookieRun, Comic Sans MS, Open Sans, sans-serif";
         var lineWidth = cc.textCtx.measureText(line).width;
         if(lineWidth > cc.textCanvas.width) cc.textCanvas.width = lineWidth;
     });
@@ -83,7 +86,7 @@ cc.drawTextbox = function() {
     cc.textCanvas.width += 38;
     if(cc.textCanvas.width < 62 && cc.tail !== null) cc.textCanvas.width = 62;
     else if(cc.textCanvas.width > 360) cc.textCanvas.width = 360;
-    cc.textCtx.font = "Bold 18px CookieRun, Open Sans, sans-serif";
+    cc.textCtx.font = "Bold 18px CookieRun, Comic Sans MS, Open Sans, sans-serif";
 
     // Draw the corners of the textbox (stored in Base64 so this can run offline without tainting the canvas)
     var img = new Image();
@@ -153,7 +156,7 @@ cc.drawTextbox = function() {
 
                 // Finally, draw text
                 cc.textCtx.fillStyle = "#000";
-                cc.textCtx.font = "Bold 18px CookieRun, Open Sans, sans-serif";
+                cc.textCtx.font = "Bold 18px CookieRun, Comic Sans MS, Open Sans, sans-serif";
                 inputLines.forEach(function(line, index) {
                     if(cc.tail !== null && cc.tail.startsWith("top-")) cc.textCtx.fillText(line, 19, 45 + (24 * index));
                     else cc.textCtx.fillText(line, 19, 28 + (22 * index));
@@ -343,6 +346,7 @@ cc.pagify = function(sprites, id, offset = 0) {
                     cc.makeUndoPoint();
                     cc.toggleControls();
                     if(window.scrollY > cc.canvas.offsetTop) cc.canvas.scrollIntoView();
+                    cc.checkAscension();
                 }
                 cc.render();
             };
@@ -378,6 +382,11 @@ cc.pagify = function(sprites, id, offset = 0) {
     if(sprites.length === 2 && ["dark_cacao", "golden_cheese", "npcs", "sonic", "tails", "white_lily"].includes(sprites[0])) {
         var p = document.createElement("p");
         p.innerHTML = cc.translateText("(Sprites provided by <a href=\"https://cookierunkingdom.fandom.com/wiki/Cookie_Run:_Kingdom_Wiki\">the Cookie Run: Kingdom Wiki</a>)");
+        cc.images.appendChild(p);
+    } else if(sprites.length === 2 && sprites[0] === "cookie0017") {
+        var p = document.createElement("p");
+        if(cc.numbers === "5622") p.innerHTML = cc.translateText("free him");
+        else p.innerHTML = "5622";
         cc.images.appendChild(p);
     }
 };
@@ -444,7 +453,7 @@ cc.render = function() {
         cc.ctx.stroke();
     }
     cc.ctx.fillRect(0, cc.canvas.height - 48, cc.canvas.width, 48);
-    cc.ctx.font = "Bold 24px CookieRun, Open Sans, sans-serif";
+    cc.ctx.font = "Bold 24px CookieRun, Comic Sans MS, Open Sans, sans-serif";
     cc.ctx.fillStyle = "black";
     cc.ctx.textAlign = "left";
     if(cc.selected !== null && cc.selected[0] === -1) {
@@ -479,6 +488,7 @@ cc.syncUndoHistory = function() {
     cc.title.value = cc.comic.title;
     cc.toggleControls();
     cc.render();
+    cc.checkAscension();
 };
 
 // Update controls
@@ -556,6 +566,12 @@ cc.translateText = function(text) {
             return "¡Advertencia! Tu cómic se perderá si no lo guardas o exportas.";
         case "Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic.":
             return "Debido a las limitaciones de su explorador, el botón de descarga no funciona mientras corre este programa desde los archivos locales. En su lugar, haga clic derecho, o toque el comic con su dedo si se encuentra en teléfono móvil, y seleccione \"Guardar imágen como...\" para guardarlo.";
+        case "Ascend":
+            return "Ascender";
+        case "free him":
+            return "liberarlo";
+        case "Congratulations! You have proven yourself to be an open-minded and curious thinker. We must apologise for deceiving you, but we can reveal that the site you were using until this point was a 'front' constructed to protect what you are currently accessing. We must ask that you do not reveal this to the public. If you believe that you may be prone to revealing information, or do not wish to participate, please close this page immediately. By reading on, you agree to participate and not reveal information.<br><br>Over the following two week time period, we will interact with you and your possessions in several ways. Keep an eye out, as some of these ways may be subtle. Others may not be. We may attempt to contact you directly. If we do this, we will attempt to notify you of our presence using a keyword. If you still consent to participation, please send an email to [redacted]. Do you wish to participate?":
+            return "Felicidades! As probado que eres un persona con un mentalidad muy creativo y curioso. A ti te pido disculpas por engañándote con este truco. Esto es una pagina web para proteger información privado que, desafortunadamente, no puedo discutir. Porfa, si tu estas en esta pagina, nos pedimos que no lo discutas en un red social, un foro, o en un pagina accessible por el publico. Si no aceptas este cláusula, o no crees que eres capaz por cuidando información privado, por favor sale de esta pagina web y evitar continuando por esta pagina.<br><br>Entre las próximas 2 semanas, vamos a interactuar con ti mismo y tus aciones y objetos que has compartido con nosotros. Este proceso va a pasar en varias maneras. Que tengas bien ojo por estas examines, por van a ser muy discretos. Si aceptas estos termos, es posible que intentemos ponernos en contacto con usted directamente; intentaremos notificarle nuestra presencia mediante en un forma de un palabra clave.<br><br>Si aceptas este solicitud, y aceptas los cláusulas mencionado en esta pagina, por favor envía un correo electrónico a [censurado].<br>Crees que tienes el mentalidad y la corazón para participar en esta desafío?";
     } else if(cc.language === "ko") switch(text) {
         case "Clear":
             return "지우다";
@@ -605,6 +621,12 @@ cc.translateText = function(text) {
             return "이미지를 내보내거나 다운로드하지 않으면 만화가 손실됩니다!";
         case "Due to browser limitations, the download button doesn't work while running this site from local files. Instead, right click or long press the comic and select \"Save image as...\" to save your comic.":
             return "웹 브라우저 제한으로 인해 로컬 파일에서 이 웹 사이트를 실행하는 동안 다운로드 버튼이 작동하지 않습니다. 대신 만화를 마우스 오른쪽 버튼으로 클릭하거나 길게 누르고 \"이미지 다운로드를\"을 선택하여 만화를 저장합니다.";
+        case "Ascend":
+            return "오르다";
+        case "free him":
+            return "그를 풀어줘";
+        case "Congratulations! You have proven yourself to be an open-minded and curious thinker. We must apologise for deceiving you, but we can reveal that the site you were using until this point was a 'front' constructed to protect what you are currently accessing. We must ask that you do not reveal this to the public. If you believe that you may be prone to revealing information, or do not wish to participate, please close this page immediately. By reading on, you agree to participate and not reveal information.<br><br>Over the following two week time period, we will interact with you and your possessions in several ways. Keep an eye out, as some of these ways may be subtle. Others may not be. We may attempt to contact you directly. If we do this, we will attempt to notify you of our presence using a keyword. If you still consent to participation, please send an email to [redacted]. Do you wish to participate?":
+            return "축하합니다! 당신은 자신이 개방적이고 호기심 많은 사상가임을 증명했습니다. 속여서 죄송합니다만, 지금까지 이용하신 이 사이트는 현재 접속하고 있는 것을 보호하기 위해 만들어진 '전면' 사이트였음을 밝힐 수 있습니다. 이 메시지를 대중에게 공개하지 마십시오. 정보를 공개할 가능성이 있다고 생각되거나 참여를 원하지 않는 경우 즉시 이 페이지를 닫으십시오. 계속 읽으면 정보를 공개하지 않고 참여하는 데 동의하는 것입니다.<br><br>다음 2주 동안 우리는 여러 가지 방법으로 귀하 및 귀하의 소유물과 상호 작용할 것입니다. 이러한 방법 중 일부는 미묘할 수 있으므로 주의하십시오. 다른 것들은 미묘하지 않을 수 있습니다. 귀하에게 직접 연락을 시도할 수 있습니다. 그렇게 하면 키워드를 사용하여 귀하에게 당사의 존재를 알리려고 시도할 것입니다. 여전히 참여에 동의하는 경우 [편집됨]으로 이메일을 보내주십시오. 참여하시겠습니까?";
     }
     return text;
 };
@@ -736,20 +758,31 @@ document.onmouseup = document.ontouchend = function(event) {
         }
     });
     cc.toggleControls();
+    cc.checkAscension();
 };
 
 // Handle file drag
 document.ondragover = document.ondragenter = function(event) {
     event.preventDefault();
     event.dataTransfer.dropEffect = "copy";
-}
+};
 
 // Handle file paste
 document.onpaste = cc.canvas.ondrop = function(event) {
     var files;
     if(event.type === "drop") files = event.dataTransfer.files;
     else {
-        if(event.clipboardData.files.length === 0) return;
+        if(event.clipboardData.files.length === 0) {
+            if(cc.numbers !== "5622") {
+                var clipboardData = event.clipboardData || window.clipboardData;
+                var pastedData = clipboardData.getData('Text');
+                if(pastedData.includes("5622")) {
+                    cc.numbers = "5622";
+                    cc.allowAscend();
+                }
+            }
+            return;
+        }
         files = event.clipboardData.files;
     }
     Array.from(files).forEach(function(file) {
@@ -1090,7 +1123,7 @@ document.getElementById("share").onclick = function() {
     cc.resetCopy();
     cc.render();
     if(cc.comic.columns > 1 || cc.comic.title === "") {
-        cc.ctx.font = "Bold 24px CookieRun, Open Sans, sans-serif";
+        cc.ctx.font = "Bold 24px CookieRun, Comic Sans MS, Open Sans, sans-serif";
         cc.ctx.fillStyle = "black";
         cc.ctx.textAlign = "right";
         cc.ctx.fillText("cookiecomiccreator.co", cc.canvas.width - 10, cc.canvas.height - 20); // If this annoys you, feel free to crop it out
@@ -1146,6 +1179,10 @@ document.getElementById("share-external").onclick = function() {
 cc.title.oninput = function() {
     cc.comic.title = this.value;
     cc.render();
+    if(this.value === "5622" && cc.numbers !== "5622") {
+        cc.numbers = "5622";
+        cc.allowAscend();
+    }
 };
 
 // Make an undo point after the title is changed
@@ -1260,7 +1297,7 @@ document.getElementById("save-image").onclick = function() {
     cc.resetCopy();
     cc.render();
     if(cc.comic.columns > 1 || cc.comic.title === "") {
-        cc.ctx.font = "Bold 24px CookieRun, Open Sans, sans-serif";
+        cc.ctx.font = "Bold 24px CookieRun, Comic Sans MS, Open Sans, sans-serif";
         cc.ctx.fillStyle = "black";
         cc.ctx.textAlign = "right";
         cc.ctx.fillText("cookiecomiccreator.co", cc.canvas.width - 10, cc.canvas.height - 20); // If this annoys you, feel free to crop it out
@@ -1366,7 +1403,7 @@ document.getElementById("sort").onchange = function() {
 Array.prototype.forEach.call(document.getElementsByClassName("theme"), function(element) {
     element.onclick = function() {
         document.body.className = element.getAttribute("name");
-        document.cookie = "theme=" + element.getAttribute("name") + "; max-age=2592000; path=/";
+        document.cookie = "themes=" + element.getAttribute("name") + "; max-age=259200; path=/";
     };
 });
 
@@ -1380,6 +1417,101 @@ if(window.innerWidth < 980) {
     document.getElementById("remove-row").disabled = false;
 }
 index.backgrounds["game"].unshift("bg_none.png");
-if(document.body.className === "" && document.cookie.includes("theme=")) document.body.className = document.cookie.split("theme=")[1].split(";")[0];
+if(document.body.className === "" && document.cookie.includes("themes=")) document.body.className = document.cookie.split("themes=")[1].split(";")[0];
 cc.render();
 cc.makeUndoPoint();
+
+cc.checkAscension = function() {
+    cc.hasBananaPeel = false;
+    if(cc.numbers === "5622") document.getElementById("ascend").disabled = true;
+    cc.comic.sprites.forEach(function(sprite) {
+        if(sprite.img.src.indexOf("cookie0017") !== -1 || sprite.img.src.indexOf("ch17") !== -1) {
+            cc.hasBananaPeel = true;
+            if(cc.numbers === "5622") document.getElementById("ascend").disabled = false;
+        }
+    });
+};
+cc.allowAscend = function() {
+    var button = document.createElement("button");
+    button.id = "ascend";
+    button.style.outline = "none";
+    button.style.transition = "opacity 1s ease-in-out";
+    button.style.opacity = 0;
+    if(!cc.hasBananaPeel) button.disabled = true;
+    button.textContent = cc.translateText("Ascend");
+    button.addEventListener("click", function() {
+        this.disabled = true;
+        this.textContent = cc.translateText("Ascend").toUpperCase();
+        document.body.style.overflowY = "hidden";
+        cc.saved = true;
+        cc.resetCopy();
+        cc.render();
+        var oldCanvas = cc.canvas;
+        var oldCtx = cc.ctx;
+        var filledCanvas = document.createElement("canvas");
+        filledCanvas.width = oldCanvas.width;
+        filledCanvas.height = oldCanvas.height;
+        filledCanvas.getContext("2d").drawImage(oldCanvas, 0, 0);
+        cc.canvas = document.createElement("canvas");
+        cc.canvas.width = oldCanvas.width;
+        cc.canvas.height = oldCanvas.height;
+        cc.ctx = cc.canvas.getContext("2d");
+        cc.comic.sprites.forEach(function(sprite, i) {
+            if(sprite.img.src.indexOf("cookie0017") !== -1 || sprite.img.src.indexOf("ch17") !== -1) delete cc.comic.sprites[i];                    
+        });
+        cc.render();
+        var i = 0;
+        var fade = setInterval(function() {
+            oldCtx.globalAlpha = 1;
+            oldCtx.drawImage(cc.canvas, 0, 0);
+            oldCtx.globalAlpha = 1 * (150 - i) / 150;
+            oldCtx.drawImage(filledCanvas, 0, 0);
+            i++;
+            if(i > 150) clearInterval(fade);
+        }, 20);
+        var mask = document.createElement("div");
+        mask.style.width = "100%";
+        mask.style.height = "100%";
+        mask.style.position = "fixed";
+        mask.style.top = 0;
+        mask.style.left = 0;
+        mask.style.backgroundColor = "#d9659c";
+        mask.style.opacity = 0;
+        mask.style.transition = "opacity 2s ease-in-out";
+        mask.style.zIndex = 5000;
+        document.body.appendChild(mask);
+        document.getElementById("ascension").play();
+        setTimeout(function() {
+            mask.style.opacity = 1;
+            var p = document.createElement("p");
+            p.className = "initiation";
+            p.innerHTML = cc.translateText("Congratulations! You have proven yourself to be an open-minded and curious thinker. We must apologise for deceiving you, but we can reveal that the site you were using until this point was a 'front' constructed to protect what you are currently accessing. We must ask that you do not reveal this to the public. If you believe that you may be prone to revealing information, or do not wish to participate, please close this page immediately. By reading on, you agree to participate and not reveal information.<br><br>Over the following two week time period, we will interact with you and your possessions in several ways. Keep an eye out, as some of these ways may be subtle. Others may not be. We may attempt to contact you directly. If we do this, we will attempt to notify you of our presence using a keyword. If you still consent to participation, please send an email to [redacted]. Do you wish to participate?");
+            p.style.fontFamily = "\"CookieRun\", \"Open Sans\", \"Comic Sans MS\", -apple-system, sans-serif";
+            p.style.position = "absolute";
+            p.style.top = "50%";
+            p.style.left = "50%";
+            p.style.transform = "translate(-50%, -50%)";
+            p.style.opacity = 0;
+            p.style.transition = "opacity 2s ease-in-out";
+            if(window.innerWidth < 480) p.style.width = "100vw";
+            mask.appendChild(p);
+            setTimeout(function() {
+                p.style.opacity = 1;
+            }, 2000);
+        }, 3000);
+    });
+    document.getElementsByClassName("top-buttons")[1].prepend(button);
+    document.getElementById("appear").play();
+    setTimeout(function() {
+        button.style.opacity = 1;
+        button.focus();
+    }, 0);
+};
+document.addEventListener("keydown", function(event) {
+    if(cc.numbers === "5622") return;
+    if(!isNaN(event.key)) {
+        cc.numbers += event.key;
+        if(cc.numbers.length > 4) cc.numbers = cc.numbers.substring(cc.numbers.length - 4);
+        if(cc.numbers === "5622") cc.allowAscend();
+    }
+});
