@@ -36,28 +36,28 @@ var cc = {
 // This is kinda overkill, but it's fine
 // https://vanillajstoolkit.com/polyfills/after/
 (function(elem) {
-	// Check if element is a node
-	// https://github.com/Financial-Times/polyfill-service
-	var isNode = function(object) {
-		if(typeof Node === "function") return object instanceof Node;
-		return object && typeof object === "object" && object.nodeName && object.nodeType >= 1 && object.nodeType <= 12;
-	};
+    // Check if element is a node
+    // https://github.com/Financial-Times/polyfill-service
+    var isNode = function(object) {
+        if(typeof Node === "function") return object instanceof Node;
+        return object && typeof object === "object" && object.nodeName && object.nodeType >= 1 && object.nodeType <= 12;
+    };
 
-	// Add after() method to prototype
-	for(var i = 0; i < elem.length; i++) {
-		if(!window[elem[i]] || "after" in window[elem[i]].prototype) continue;
-		window[elem[i]].prototype.after = function() {
-			var argArr = Array.prototype.slice.call(arguments);
-			var docFrag = document.createDocumentFragment();
-			for(var n = 0; n < argArr.length; n++) docFrag.appendChild(isNode(argArr[n]) ? argArr[n] : document.createTextNode(String(argArr[n])));
-			this.parentNode.insertBefore(docFrag, this.nextSibling);
-		};
-	}
+    // Add after() method to prototype
+    for(var i = 0; i < elem.length; i++) {
+        if(!window[elem[i]] || "after" in window[elem[i]].prototype) continue;
+        window[elem[i]].prototype.after = function() {
+            var argArr = Array.prototype.slice.call(arguments);
+            var docFrag = document.createDocumentFragment();
+            for(var n = 0; n < argArr.length; n++) docFrag.appendChild(isNode(argArr[n]) ? argArr[n] : document.createTextNode(String(argArr[n])));
+            this.parentNode.insertBefore(docFrag, this.nextSibling);
+        };
+    }
 })(["Element", "CharacterData", "DocumentType"]);
 
 // HTMLCanvasElement.toBlob() polyfill
 // https://gist.github.com/salzhrani/02a6e807f24785a4d34b
-if(!HTMLCanvasElement.prototype.toBlob) Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", { 
+if(!HTMLCanvasElement.prototype.toBlob) Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", {
     value: function(callback, type, quality) {
         var bin = atob(this.toDataURL(type, quality).split(',')[1]);
         var len = bin.length;
@@ -676,7 +676,7 @@ cc.translateText = function(text) {
 // Handle user leaving the page with comic unfinished
 window.onbeforeunload = function() {
     if(cc.comic.sprites.length > 2 && !cc.saved) return cc.translateText("Warning! Your comic will be lost unless you save or export it.");
-}
+};
 
 // Handle clicks and taps
 cc.canvas.onmousedown = cc.canvas.ontouchstart = function(event) {
@@ -804,7 +804,7 @@ document.onmouseup = document.ontouchend = function(event) {
 document.ondragover = document.ondragenter = function(event) {
     event.preventDefault();
     event.dataTransfer.dropEffect = "copy";
-}
+};
 
 // Handle file paste
 document.onpaste = cc.canvas.ondrop = function(event) {
@@ -1218,7 +1218,7 @@ cc.title.oninput = function() {
 // Make an undo point after the title is changed
 cc.title.onchange = function() {
     cc.makeUndoPoint();
-}
+};
 
 // Handle rotate slider move
 document.getElementById("rotate").oninput = function() {
