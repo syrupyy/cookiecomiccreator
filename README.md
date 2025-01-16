@@ -1,9 +1,11 @@
 # Cookie Comic Creator
 Create comics with Cookie Run characters and send them to your friends!
+
+**Note:** This is no longer maintained. For the most up-to-date experience, check out [Cookie Run Comic Studio](https://cookierun.comic.studio/) - it's based on the same codebase, but with years of improvements and new features. We even have comic creators for other series!
 ## Installation
-Clone or download the repo, then download [this index of images](https://cookiecomiccreator.co/assets/img.zip) and merge it into your assets/ folder. You can then just run it in your browser locally (this method does not support sharing or saving images without right-clicking, however) or run it on a web server!
+Get the latest version from the [releases page](https://github.com/syrupyy/cookiecomiccreator/releases) and extract it! If you really know what you're doing, then you can also clone or download the repo, build the index and merge it into the assets/ folder.
 ## Building the index yourself
-If you want this for something else or would prefer to use your own assets, you can use the scripts in the index/ folder to make your own index.
+If you want this for something else or would prefer to use your own assets, you can use the scripts in the index/ folder to make your own index. That said, I haven't had the time to sort everything out and update the included files, so for the best experience, just use the one from the releases...
 1. Get an Android emulator (BlueStacks doesn't work from my testing; I use MEmu, but be sure to say no to any fishy offers in the installer) or a rooted Android device + a good file manager, and an (X)APK of Cookie Run: OvenBreak.
 2. Make sure your Android installation of OvenBreak has the latest files downloaded (and turn segmented downloads off in the game's settings if you can), then get those files to somewhere you can access them on your computer, either through opening the virtual machine disk with 7zip on Windows (mine was in C:\Program Files (x86)\Microvirt\MEmu\MemuHyperv VMs\MEmu\Memu76-[datetime numbers]FFF-disk2.vmdk and then 2.img in there) or old APK versions of ES File Explorer, and extracting (data/)data/com.devsisters.gb/files/download/.
 3. Once that is copied somewhere you can access it on your computer, open the (X)APK (again, in an app like 7zip) and find assets/release, either in the Google Play Asset Pack in an XAPK or just lying around in a normal APK.
