@@ -636,7 +636,7 @@ cc.translateText = function(text) {
 // Handle user leaving the page with comic unfinished
 window.onbeforeunload = function() {
     if(cc.comic.sprites.length > 2 && !cc.saved) return cc.translateText("Warning! Your comic will be lost unless you save or export it.");
-}
+};
 
 // Handle clicks and taps
 cc.canvas.onmousedown = cc.canvas.ontouchstart = function(event) {
@@ -1188,7 +1188,7 @@ cc.title.oninput = function() {
 // Make an undo point after the title is changed
 cc.title.onchange = function() {
     cc.makeUndoPoint();
-}
+};
 
 // Handle rotate slider move
 document.getElementById("rotate").oninput = function() {
@@ -1457,7 +1457,7 @@ cc.allowAscend = function() {
         cc.canvas.height = oldCanvas.height;
         cc.ctx = cc.canvas.getContext("2d");
         cc.comic.sprites.forEach(function(sprite, i) {
-            if(sprite.img.src.indexOf("cookie0017") !== -1 || sprite.img.src.indexOf("ch17") !== -1) delete cc.comic.sprites[i];                    
+            if(sprite.img.src.indexOf("cookie0017") !== -1 || sprite.img.src.indexOf("ch17") !== -1) delete cc.comic.sprites[i];
         });
         cc.render();
         var i = 0;
